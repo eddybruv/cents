@@ -1,0 +1,35 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&display=swap");
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@theme {
+  --font-archivo: "Archivo";
+  --color-secondary:#292929;  /* #1f1f1f */
+
+}
+
+body {
+  font-family: var(--font-archivo) !important;
+  color: white;
+}
+
+.btn-secondary {
+  @apply 
+  bg-(--color-secondary) min-w-fit
+  flex items-center gap-2 
+  border border-gray-600 rounded-lg 
+  px-4 py-2 
+  text-white text-sm font-light 
+  hover:border-gray-600 
+  focus:outline-none cursor-pointer transition-all duration-200 ;
+}
+.btn-secondary:hover {
+  background-color: #2c2c2c;
+}
+
+.text-secondary {
+  color: var(--color-gray-200);
+}
