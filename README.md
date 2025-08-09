@@ -65,18 +65,6 @@ http://localhost:5173/auth/callback
 
 ## 📁 Project structure
 
-src/
-  components/
-    budget/
-    dashboard/
-    transactions/
-  context/
-  data/
-  hooks/
-  layout/
-  pages/
-server/
-
 ```text
 .
 ├─ public/
@@ -85,7 +73,9 @@ server/
 │  └─ services/
 └─ src/
    ├─ components/
+   │  └─ budget/
    │  └─ dashboard/
+   │  └─ transactions/
    ├─ context/
    ├─ hooks/
    ├─ layout/
