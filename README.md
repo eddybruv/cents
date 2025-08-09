@@ -1,23 +1,27 @@
-# Vault
+# CENTS
 
-A minimal, modern personal finance dashboard to visualize balances, spending trends, and card summaries. Built with React, Vite, Tailwind CSS, and Supabase Auth.
+A focused budgeting & personal finance workspace: pacing, allocations, deep category modules, and a powerful transactions grid. Built with React, Vite, Supabase, and modern data viz.
 
-## ✨ Features
+## ✨ Core Features
 
-- Google Sign‑In with Supabase (OAuth) and protected routes
-- Clean dashboard UI with summary cards and a card carousel
-- Responsive design powered by Tailwind CSS v4 and Font Awesome icons
-- Utility for parsing PDF statements (experimental server helper)
-- Scaffold for AI insights (OpenAI config placeholder)
+- Google OAuth (Supabase) & protected routing
+- Monthly pacing gauge with forecast & variance
+- Editable color‑coded budgets with alert thresholds
+- Category modules (sparklines, inline edits)
+- Transactions table (sorting, filtering, pagination)
+- Theme tokens (light/dark) & glass UI aesthetic
+- Statement parsing scaffold (PDF -> future import flow)
+- Extensible server layer (Express + Supabase client)
 
 ## 🛠 Tech Stack
 
-- React 19, React Router 7
-- Vite 6
-- Tailwind CSS 4
-- Supabase JS v2
-- Font Awesome 6
-- Node/Express scaffold, pdf-parse (server utilities)
+- React 19 + Vite 6
+- React Router 7
+- @tanstack/react-table for data grids
+- Recharts for charts
+- Moment.js for date handling
+- Supabase JS v2 (Auth & future data)
+- Express server utilities (PDF parsing experiment)
 
 ## 🚀 Getting Started
 
@@ -37,13 +41,13 @@ Prerequisites: Node.js 18+
    VITE_SUPABASE_API_KEY=your_supabase_anon_key
    ```
 
-3. Start the web app
+3. Run dev
 
    ```bash
    npm run dev
    ```
 
-   Open <http://localhost:5173>
+   Visit <http://localhost:5173>
 
 Optional: start the server utilities (WIP)
 
@@ -55,9 +59,23 @@ npm run server
 
 Add this Redirect URL in your Supabase project Auth settings:
 
-- <http://localhost:5173/auth/callback>
+```text
+http://localhost:5173/auth/callback
+```
 
 ## 📁 Project structure
+
+src/
+  components/
+    budget/
+    dashboard/
+    transactions/
+  context/
+  data/
+  hooks/
+  layout/
+  pages/
+server/
 
 ```text
 .
@@ -74,24 +92,15 @@ Add this Redirect URL in your Supabase project Auth settings:
    └─ pages/
 ```
 
-## 📜 Scripts
+## 🧭 Roadmap
 
-- dev: Vite dev server
-- build: Production build
-- preview: Preview production build
-- lint: ESLint
-- server: Nodemon (watches `server/`, WIP)
+- CSV/PDF transaction import pipeline
+- Rule-based auto categorization & tagging
+- Historical rollovers & envelope style reserves
+- User preferences & theming page
+- Alerting (email / push) for threshold breaches
+- AI spending anomaly & forecast insights
 
-## 📝 Notes
-
-- App title is set to “Vault” in `index.html`.
-- `src/supabase.js` logs env details for debugging. Remove or adjust for production.
-
-## 🗺 Roadmap
-
-- Link parsed transactions from PDFs into the dashboard
-- AI-powered spending insights and categorization
-- Data persistence and user settings
-
-—
-WIP. Contributions and feedback welcome.
+---
+Crafted with care — iterate, extend, and make your cents count.
+(WIP).
