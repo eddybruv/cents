@@ -3,6 +3,9 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import AuthCallback from "./components/AuthCallback";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Landing from "./pages/Landing";
+import Transactions from "./pages/Transactions"; // added
+import Budget from "./pages/Budget"; // added
 const App = () => {
   return (
     <Routes>
@@ -16,7 +19,23 @@ const App = () => {
           </ProtectedRoute>
         }
       />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route
+        path="/transactions"
+        element={
+          <ProtectedRoute>
+            <Transactions />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/budget"
+        element={
+          <ProtectedRoute>
+            <Budget />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/" element={<Landing />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
