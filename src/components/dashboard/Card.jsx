@@ -8,10 +8,8 @@ const CardBackground = ({ className = "", children }) => {
     <div
       className={`flex justify-center items-center relative rounded-sm ${className}`}
     >
-      <div className={"w-17 h-5 rounded-full bg-green-500"}></div>
-      <div className="absolute inset-0 bg-white/15 backdrop-blur-xl rounded-sm">
-        {children}
-      </div>
+      <div className={"w-17 h-5 rounded-full bg-(--color-accent)"}></div>
+      <div className="absolute inset-0 glass rounded-sm">{children}</div>
     </div>
   );
 };
@@ -42,10 +40,12 @@ export const Card = ({
   return (
     <CardBackground className={className}>
       <div className="flex flex-col p-4">
-        <p className="text-sm text-gray-300">{title}</p>
+        <p className="text-sm text-(--color-muted)">{title}</p>
         <p className="text-2xl mt-2">{formatValue(value)}</p>
         <div
-          className={`flex items-center gap-1 text-sm font-semibold mt-1 ${sign ? "text-green-500" : "text-red-500"}`}
+          className={`flex items-center gap-1 text-sm font-semibold mt-1 ${
+            sign ? "text-(--color-accent)" : "text-red-500"
+          }`}
         >
           <FontAwesomeIcon icon={sign ? faCaretUp : faCaretDown} />
           <span>{formatPercent(percent)}</span>

@@ -1,35 +1,78 @@
 @import url("https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+:root {
+  color-scheme: dark light;
+}
 
-@theme {
-  --font-archivo: "Archivo";
-  --color-secondary:#292929;  /* #1f1f1f */
+/* Dark theme (default) */
+:root[data-theme="dark"] {
+  --color-bg: #0b0b0c;
+  --color-surface: rgba(255, 255, 255, 0.08);
+  --color-fg: #ffffff;
+  --color-muted: #a1a1aa; /* zinc-400 */
+  --color-border: #3f3f46; /* zinc-700 */
+  --color-accent: #22c55e; /* green-500 */
+}
 
+/* Light theme */
+:root[data-theme="light"] {
+  --color-bg: #f8fafc; /* slate-50 */
+  --color-surface: rgba(0, 0, 0, 0.06);
+  --color-fg: #0b0b0c;
+  --color-muted: #52525b; /* zinc-600 */
+  --color-border: #d4d4d8; /* zinc-300 */
+  --color-accent: #16a34a; /* green-600 */
 }
 
 body {
-  font-family: var(--font-archivo) !important;
-  color: white;
+  font-family:
+    "Archivo",
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Ubuntu,
+    Cantarell,
+    Noto Sans,
+    Helvetica Neue,
+    Arial,
+    "Apple Color Emoji",
+    "Segoe UI Emoji" !important;
+  background: var(--color-bg);
+  color: var(--color-fg);
 }
 
+/* Secondary button, theme-aware */
 .btn-secondary {
-  @apply 
-  bg-(--color-secondary) min-w-fit
-  flex items-center gap-2 
-  border border-gray-600 rounded-lg 
-  px-4 py-2 
-  text-white text-sm font-light 
-  hover:border-gray-600 
-  focus:outline-none cursor-pointer transition-all duration-200 ;
+  background: var(--color-surface);
+  min-width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem; /* 8px */
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem; /* 8px */
+  padding: 0.5rem 1rem; /* 8px 16px */
+  color: var(--color-fg);
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 300; /* font-light */
+  cursor: pointer;
+  transition:
+    border-color 200ms,
+    background-color 200ms,
+    color 200ms;
 }
 .btn-secondary:hover {
-  background-color: #2c2c2c;
+  border-color: var(--color-accent);
+  background-color: color-mix(in oklab, var(--color-surface), #ffffff 5%);
 }
 
 .text-secondary {
-  color: var(--color-gray-200);
+  color: var(--color-muted);
+}
+
+/* Utility: glass card */
+.glass {
+  background: var(--color-surface);
+  backdrop-filter: blur(18px);
 }

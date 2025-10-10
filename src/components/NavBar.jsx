@@ -1,48 +1,50 @@
 import React from "react";
 import logo from "../assets/logo.png";
-import CustomSelect from "./CustomSelect";
+import { useLocation, Link } from "react-router-dom"; // added
+import SettingsDropdown from "./SettingsDropdown";
 
 const NavBar = ({ toggleMobileMenu, isMobileMenuOpen }) => {
+  const { pathname } = useLocation(); // added
   return (
-    <nav className="bg-black sticky top-0 z-50">
+    <nav className="bg-(--color-bg) sticky top-0 z-50 border-b border-(--color-border)">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0">
-            <a href="/" className="flex items-center">
+            <Link to="/" className="flex items-center">
               <img src={logo} alt="logo" className="w-auto h-6" />
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="flex items-baseline space-x-1">
-              <a
-                href="/"
-                className="text-white hover:text-green-200 px-3 py-2 text-sm font-medium transition-colors duration-200"
+              <Link
+                to="/dashboard"
+                className={`px-3 py-2 text-sm font-medium transition-colors duration-200 ${pathname.startsWith("/dashboard") ? "text-(--color-fg)" : "text-(--color-muted) hover:text-(--color-accent)"}`}
               >
                 Dashboard
-              </a>
-              <a
-                href="/transactions"
-                className="text-gray-300 hover:text-green-200 px-3 py-2 text-sm font-medium transition-colors duration-200"
+              </Link>
+              <Link
+                to="/transactions"
+                className={`px-3 py-2 text-sm font-medium transition-colors duration-200 ${pathname.startsWith("/transactions") ? "text-(--color-fg)" : "text-(--color-muted) hover:text-(--color-accent)"}`}
               >
                 Transactions
-              </a>
-              <a
-                href="/budget"
-                className="text-gray-300 hover:text-green-200 px-3 py-2 text-sm font-medium transition-colors duration-200"
+              </Link>
+              <Link
+                to="/budget"
+                className={`px-3 py-2 text-sm font-medium transition-colors duration-200 ${pathname.startsWith("/budget") ? "text-(--color-fg)" : "text-(--color-muted) hover:text-(--color-accent)"}`}
               >
                 Budget
-              </a>
+              </Link>
               <a
                 href="/saving-goals"
-                className="text-gray-300 hover:text-green-200 px-3 py-2 text-sm font-medium transition-colors duration-200"
+                className="text-(--color-muted) hover:text-(--color-accent) px-3 py-2 text-sm font-medium transition-colors duration-200"
               >
                 Saving Goals
               </a>
               <a
                 href="/cards"
-                className="text-gray-300 hover:text-green-200 px-3 py-2 text-sm font-medium transition-colors duration-200"
+                className="text-(--color-muted) hover:text-(--color-accent) px-3 py-2 text-sm font-medium transition-colors duration-200"
               >
                 Cards
               </a>
@@ -50,13 +52,15 @@ const NavBar = ({ toggleMobileMenu, isMobileMenuOpen }) => {
           </div>
 
           {/* Desktop Right Side */}
-          <CustomSelect />
+          <div className="hidden md:flex items-center gap-2">
+            <SettingsDropdown />
+          </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button
               onClick={toggleMobileMenu}
-              className="text-gray-300 hover:text-white p-2 rounded-md transition-colors duration-200"
+              className="text-(--color-muted) hover:text-(--color-fg) p-2 rounded-md transition-colors duration-200"
               aria-label="Toggle mobile menu"
             >
               <svg
@@ -88,43 +92,46 @@ const NavBar = ({ toggleMobileMenu, isMobileMenuOpen }) => {
 
       {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-700">
-          <div className="px-2 pt-2 pb-3 space-y-1 bg-gray-800">
-            <a
-              href="/"
-              className="text-white block px-3 py-2 text-base font-medium hover:bg-gray-700 rounded-md transition-colors duration-200"
-            >
-              Home
-            </a>
-            <a
-              href="/dashboard"
-              className="text-gray-300 block px-3 py-2 text-base font-medium hover:bg-gray-700 rounded-md transition-colors duration-200"
+        <div className="md:hidden border-t border-(--color-border)">
+          <div className="px-2 pt-2 pb-3 space-y-1 bg-(--color-bg)">
+            <Link
+              to="/dashboard"
+              className={`block px-3 py-2 text-base font-medium rounded-md transition-colors duration-200 ${pathname.startsWith("/dashboard") ? "text-(--color-fg)" : "text-(--color-muted) hover:bg-(--color-surface)"}`}
             >
               Dashboard
-            </a>
-            <a
-              href="/products"
-              className="text-gray-300 block px-3 py-2 text-base font-medium hover:bg-gray-700 rounded-md transition-colors duration-200"
+            </Link>
+            <Link
+              to="/transactions"
+              className={`block px-3 py-2 text-base font-medium rounded-md transition-colors duration-200 ${pathname.startsWith("/transactions") ? "text-(--color-fg)" : "text-(--color-muted) hover:bg-(--color-surface)"}`}
             >
-              Products
-            </a>
+              Transactions
+            </Link>
+            <Link
+              to="/budget"
+              className={`block px-3 py-2 text-base font-medium rounded-md transition-colors duration-200 ${pathname.startsWith("/budget") ? "text-(--color-fg)" : "text-(--color-muted) hover:bg-(--color-surface)"}`}
+            >
+              Budget
+            </Link>
             <a
               href="/about"
-              className="text-gray-300 block px-3 py-2 text-base font-medium hover:bg-gray-700 rounded-md transition-colors duration-200"
+              className="text-(--color-muted) block px-3 py-2 text-base font-medium hover:bg-(--color-surface) rounded-md transition-colors duration-200"
             >
               About
             </a>
+            <div className="px-3 pt-2 flex gap-2">
+              <SettingsDropdown />
+            </div>
           </div>
-          <div className="pt-4 pb-3 border-t border-gray-700">
+          <div className="pt-4 pb-3 border-t border-(--color-border)">
             <div className="flex items-center px-5">
-              <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center">
-                <span className="text-gray-200 font-medium">U</span>
+              <div className="w-10 h-10 bg-(--color-surface) rounded-full flex items-center justify-center">
+                <span className="text-(--color-fg) font-medium">U</span>
               </div>
               <div className="ml-3">
-                <div className="text-base font-medium text-gray-200">
+                <div className="text-base font-medium text-(--color-fg)">
                   User Name
                 </div>
-                <div className="text-sm font-medium text-gray-400">
+                <div className="text-sm font-medium text-(--color-muted)">
                   user@example.com
                 </div>
               </div>
