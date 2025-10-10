@@ -21,7 +21,6 @@ const Landing = () => {
       <header className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="cents" className="h-6 w-auto" />
-          <span className="font-semibold tracking-tight text-sm">cents</span>
         </Link>
         <div className="flex items-center gap-3">
           <Link
