@@ -1,21 +1,16 @@
 // contexts/AuthContext.js
 import React, { createContext, useEffect, useState } from "react";
-// import { supabase } from "../supabase"; // COMMENTED OUT - BYPASS AUTH
+import { supabase } from "../supabase";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // BYPASS: Mock authenticated user for development
-  const [user, setUser] = useState({
-    id: "dev-user",
-    email: "dev@example.com",
-  });
-  const loading = false; // Always loaded in bypass mode
+  const [user, setUser] = useState({});
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
-  /* SUPABASE AUTH COMMENTED OUT
   useEffect(() => {
     // Get initial session
     const getSession = async () => {
@@ -23,6 +18,7 @@ export const AuthProvider = ({ children }) => {
         const {
           data: { session },
         } = await supabase.auth.getSession();
+        console.log({ session });
         setUser(session?.user ?? null);
       } finally {
         setLoading(false);
@@ -41,7 +37,6 @@ export const AuthProvider = ({ children }) => {
 
     return () => subscription.unsubscribe();
   }, []);
-  */
 
   // Redirect signed-in users that land on the homepage or login to dashboard
   useEffect(() => {
@@ -55,11 +50,6 @@ export const AuthProvider = ({ children }) => {
   }, [loading, user, location.pathname, navigate]);
 
   const signInWithGoogle = async () => {
-    // BYPASS: Mock sign in
-    setUser({ id: "dev-user", email: "dev@example.com" });
-    return { data: { user: { id: "dev-user", email: "dev@example.com" } } };
-
-    /* SUPABASE AUTH COMMENTED OUT
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -73,20 +63,15 @@ export const AuthProvider = ({ children }) => {
     }
 
     return { data };
-    */
   };
 
   const signOut = async () => {
-    // BYPASS: Mock sign out
-    setUser(null);
-    navigate("/login");
-
-    /* SUPABASE AUTH COMMENTED OUT
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error("Error signing out:", error);
     }
-    */
+    setUser(null);
+    navigate("/login");
   };
 
   const value = {
