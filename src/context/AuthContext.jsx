@@ -2,11 +2,12 @@
 import React, { createContext, useEffect, useState } from "react";
 import { supabase } from "../supabase";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useSessionStorage } from "usehooks-ts";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState({});
+  const [user, setUser, removeUser] = useSessionStorage("user", null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,23 +20,31 @@ export const AuthProvider = ({ children }) => {
           data: { session },
         } = await supabase.auth.getSession();
         console.log({ session });
-        setUser(session?.user ?? null);
+        const userData = session?.user ?? null;
+        setUser(userData);
       } finally {
         setLoading(false);
       }
     };
 
-    getSession();
+    // Check if we already have cached user
+    if (user) {
+      setLoading(false);
+    } else {
+      getSession();
+    }
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null);
+      const userData = session?.user ?? null;
+      setUser(userData);
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Redirect signed-in users that land on the homepage or login to dashboard
@@ -70,7 +79,7 @@ export const AuthProvider = ({ children }) => {
     if (error) {
       console.error("Error signing out:", error);
     }
-    setUser(null);
+    removeUser();
     navigate("/login");
   };
 
