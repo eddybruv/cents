@@ -19,9 +19,7 @@ export const AuthProvider = ({ children }) => {
         const {
           data: { session },
         } = await supabase.auth.getSession();
-        console.log({ session });
-        const userData = session?.user ?? null;
-        setUser(userData);
+        setUser(session?.user ?? null);
       } finally {
         setLoading(false);
       }
