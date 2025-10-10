@@ -4,8 +4,8 @@ import Login from "./pages/Login";
 import AuthCallback from "./components/AuthCallback";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Landing from "./pages/Landing";
-import Transactions from "./pages/Transactions"; // added
-import Budget from "./pages/Budget"; // added
+import Transactions from "./pages/Transactions";
+import Budget from "./pages/Budget";
 const App = () => {
   return (
     <Routes>
