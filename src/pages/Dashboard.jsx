@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { usePlaidLink } from "react-plaid-link";
 import BaseLayout from "../layout/BaseLayout";
 import ActionBar from "../components/ActionBar";
 import { Card } from "../components/dashboard/Card";
@@ -7,7 +8,32 @@ import ExpensesAnalysis from "../components/dashboard/ExpensesAnalysis";
 import BudgetHeader from "../components/dashboard/BudgetHeader";
 import CategoryBudgets from "../components/dashboard/CategoryBudgets";
 import RecentTransactions from "../components/dashboard/RecentTransactions";
+import API from "../api/API";
+
 const Dashboard = () => {
+  const [linkToken, setLinkToken] = useState(null);
+
+  useEffect(() => {
+    const fetchLinkToken = async () => {
+      try {
+        const { link_token: token } = await API.post(
+          "/api/plaid/create-link-token",
+          { userId: "user-id" },
+        );
+
+        setLinkToken(token);
+      } catch (error) {
+        console.error("Error fetching link token:", error);
+      }
+    };
+
+    if (!linkToken) {
+      fetchLinkToken();
+    }
+  }, [linkToken]);
+
+  
+
   return (
     <BaseLayout>
       <ActionBar page="dashboard" />

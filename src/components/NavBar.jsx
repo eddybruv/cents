@@ -1,10 +1,10 @@
 import React from "react";
 import logo from "../assets/logo.png";
-import { useLocation, Link } from "react-router-dom"; // added
+import { useLocation, Link } from "react-router-dom";
 import SettingsDropdown from "./SettingsDropdown";
 
 const NavBar = ({ toggleMobileMenu, isMobileMenuOpen }) => {
-  const { pathname } = useLocation(); // added
+  const { pathname } = useLocation();
   return (
     <nav className="bg-(--color-bg) sticky top-0 z-50 border-b border-(--color-border)">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
