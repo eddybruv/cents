@@ -20,7 +20,7 @@ const CreateLinkToken = async (req, res) => {
     res.json(createTokenResponse.data);
   } catch (error) {
     const {
-    res.status(error.status || 500).json(data);
+      response: { data },
     } = error;
     console.log("error", error);
     res.status(error.status).json(data);
