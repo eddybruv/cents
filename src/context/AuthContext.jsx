@@ -8,9 +8,24 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser, removeUser] = useSessionStorage("user", null);
+  const [plaidData, setPlaidData, removePlaidData] = useSessionStorage(
+    "plaidData",
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const destructureUserFromSession = (user) => {
+    if (!user) return null;
+    const { id, email, user_metadata } = user;
+    return {
+      id,
+      email,
+      fullName: user_metadata?.full_name || "",
+      avatarUrl: user_metadata?.avatar_url || "",
+    };
+  };
 
   useEffect(() => {
     // Get initial session
@@ -19,7 +34,7 @@ export const AuthProvider = ({ children }) => {
         const {
           data: { session },
         } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
+        setUser(destructureUserFromSession(session?.user));
       } finally {
         setLoading(false);
       }
@@ -36,7 +51,7 @@ export const AuthProvider = ({ children }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      const userData = session?.user ?? null;
+      const userData = destructureUserFromSession(session?.user);
       setUser(userData);
       setLoading(false);
     });
@@ -78,7 +93,8 @@ export const AuthProvider = ({ children }) => {
       console.error("Error signing out:", error);
     }
     removeUser();
-    navigate("/login");
+    removePlaidData();
+    navigate("/");
   };
 
   const value = {
@@ -86,6 +102,9 @@ export const AuthProvider = ({ children }) => {
     loading,
     signInWithGoogle,
     signOut,
+    plaidData,
+    setPlaidData,
+    removePlaidData,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
