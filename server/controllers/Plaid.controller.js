@@ -74,8 +74,15 @@ const SyncInstitutions = async (accessToken, userId) => {
       plaidInstitutionId: institution_id,
       name,
       accessToken,
-      userId
-    }).onConflictDoUpdate().catch((e) => { console.error("DB Insert Error: ", e) });
+      userId,
+      uniqueId: `${institution_id}-${userId}`,
+    }).onConflictDoUpdate({
+      target: institutions.uniqueId,
+      set: {
+        accessToken: accessToken,
+        name: name,
+      }
+    }).catch((e) => { console.error("❌ DB Insert Error: ", e) });
 
   } catch (error) {
     const {
@@ -85,7 +92,8 @@ const SyncInstitutions = async (accessToken, userId) => {
   }
 };
 
-// get accounts
+// create / update accounts
+
 // get transactions
 
 
