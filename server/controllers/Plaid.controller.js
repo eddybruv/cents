@@ -1,100 +1,136 @@
 /* eslint-disable no-undef */
+import { eq } from "drizzle-orm";
 import { db } from "../db/db.js";
 import { institutions } from "../db/schema/institutions.js";
+import { accounts } from "../db/schema/accounts.js";
 import plaidClient from "../services/plaidConfig.js";
 
-const CreateLinkToken = async (req, res) => {
+const COUNTRY_CODES = process.env.VITE_PLAID_COUNTRY_CODES.split(",");
+
+/* -------------------- Create Link Token -------------------- */
+export const CreateLinkToken = async (req, res) => {
   const { userId } = req.body;
-  if (!userId || typeof userId !== "string" || userId.trim() === "") {
+  if (!userId || typeof userId !== "string" || !userId.trim())
     return res.status(400).json({ error: "Invalid or missing userId" });
-  }
-  const config = {
-    user: {
-      client_user_id: userId,
-    },
-    client_name: "cents",
-    products: ["auth"],
-    country_codes: process.env.VITE_PLAID_COUNTRY_CODES.split(","),
-    language: "en",
-  };
+
   try {
-    const createTokenResponse = await plaidClient.linkTokenCreate(config);
-    res.json(createTokenResponse.data);
+    const config = {
+      user: { client_user_id: userId },
+      client_name: "Cents",
+      products: ["auth"],
+      country_codes: COUNTRY_CODES,
+      language: "en",
+    };
+    const { data } = await plaidClient.linkTokenCreate(config);
+    res.json(data);
   } catch (error) {
-    const {
-      response: { data },
-    } = error;
-    console.log("error", error);
-    res.status(error.status).json(data);
+    const status = error?.response?.status || 500;
+    const message = error?.response?.data || { error: "Plaid error" };
+    console.error("❌ CreateLinkToken:", message);
+    res.status(status).json(message);
   }
 };
 
-const ExchangePublicToken = async (req, res) => {
-  const { public_token, user_id } = req.body;
-  if (!public_token || typeof public_token !== "string") {
+/* -------------------- Exchange Public Token -------------------- */
+export const ExchangePublicToken = async (req, res) => {
+  const { public_token: publicToken, user_id: userId } = req.body;
+  if (!publicToken || typeof publicToken !== "string")
     return res.status(400).json({ error: "Invalid or missing public_token" });
-  }
 
   try {
-    const exchangeTokenResponse = await plaidClient.itemPublicTokenExchange({
-      public_token,
-    });
+    const { data } = await plaidClient.itemPublicTokenExchange({ public_token: publicToken });
+    const accessToken = data.access_token;
 
-    const [institutionSync] = await Promise.all([
-      SyncInstitutions(exchangeTokenResponse.data.access_token, user_id),
-    ]);
+    const institutionOk = await SyncInstitutions(accessToken, userId);
+    if (!institutionOk) return res.status(500).json({ error: "Failed to sync institution data" });
 
-    res.json(exchangeTokenResponse.data);
+    const userInstitutions = await db.select().from(institutions).where(eq(institutions.userId, userId));
+
+    await Promise.all(userInstitutions.map(i => SyncAccounts(i.accessToken, i.id)));
+
+    res.json(data);
   } catch (error) {
-    console.log("error", error);
-    res.status(error.status).json(error);
+    const status = error?.response?.status || 500;
+    const message = error?.response?.data || { error: "Plaid error" };
+    console.error("❌ ExchangePublicToken:", message);
+    res.status(status).json(message);
   }
 };
 
-// get / update supabase (with drizzle) institutions
+/* -------------------- Sync Institutions -------------------- */
 const SyncInstitutions = async (accessToken, userId) => {
   try {
-    const itemResponse = await plaidClient.itemGet({ access_token: accessToken });
-    const item = itemResponse.data.item;
-    const institutionId = item.institution_id;
-    if (!institutionId) {
-      throw new Error("No institution ID found for the item");
-    }
+    const { data: { item } } = await plaidClient.itemGet({ access_token: accessToken });
+    if (!item?.institution_id) throw new Error("No institution ID found");
+
     const { data: { institution } } = await plaidClient.institutionsGetById({
-      institution_id: institutionId,
-      country_codes: process.env.VITE_PLAID_COUNTRY_CODES.split(","),
-      options: {
-        include_auth_metadata: false
-      }
+      institution_id: item.institution_id,
+      country_codes: COUNTRY_CODES,
     });
 
-    const { institution_id, name } = institution;
-    // await db insert with drizzle
-    await db.insert(institutions).values({
-      plaidInstitutionId: institution_id,
-      name,
-      accessToken,
-      userId,
-      uniqueId: `${institution_id}-${userId}`,
-    }).onConflictDoUpdate({
-      target: institutions.uniqueId,
-      set: {
-        accessToken: accessToken,
-        name: name,
-      }
-    }).catch((e) => { console.error("❌ DB Insert Error: ", e) });
+    await db.insert(institutions)
+      .values({
+        plaidInstitutionId: institution.institution_id,
+        name: institution.name,
+        accessToken,
+        userId,
+        uniqueId: `${institution.institution_id}-${userId}`,
+      })
+      .onConflictDoUpdate({
+        target: institutions.uniqueId,
+        set: { accessToken, name: institution.name },
+      });
 
+    return true;
   } catch (error) {
-    const {
-      response: { data },
-    } = error;
-    console.log("error", data);
+    console.error("❌ SyncInstitutions:", error?.response?.data || error.message);
+    return false;
   }
 };
 
-// create / update accounts
+/* -------------------- Sync Accounts -------------------- */
+const SyncAccounts = async (accessToken, institutionId) => {
+  try {
+    const { data } = await plaidClient.accountsGet({ access_token: accessToken });
+    const plaidAccounts = data.accounts;
+
+    await Promise.all(plaidAccounts.map(async acc => {
+      const {
+        account_id: plaidAccountId,
+        name,
+        type,
+        subtype,
+        mask,
+        balances: {
+          available: balanceAvailable,
+          current: balanceCurrent,
+          iso_currency_code: currencyCode,
+        },
+      } = acc;
+
+      await db.insert(accounts)
+        .values({
+          plaidAccountId,
+          name,
+          type,
+          subtype,
+          mask,
+          balanceAvailable,
+          balanceCurrent,
+          currencyCode,
+          institutionId,
+        })
+        .onConflictDoUpdate({
+          target: accounts.plaidAccountId,
+          set: { name, type, subtype, mask, balanceAvailable, balanceCurrent, currencyCode },
+        });
+    }));
+
+    return true;
+  } catch (error) {
+    console.error("❌ SyncAccounts:", error?.response?.data || error.message);
+    return false;
+  }
+};
 
 // get transactions
-
-
-export { CreateLinkToken, ExchangePublicToken };
