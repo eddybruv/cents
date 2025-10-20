@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import Transactions from "./pages/Transactions";
 import Budget from "./pages/Budget";
+import Accounts from "./pages/Accounts";
 const App = () => {
   return (
     <Routes>
@@ -32,6 +33,14 @@ const App = () => {
         element={
           <ProtectedRoute>
             <Budget />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/accounts"
+        element={
+          <ProtectedRoute>
+            <Accounts />
           </ProtectedRoute>
         }
       />
