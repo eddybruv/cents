@@ -2,9 +2,13 @@ import React from "react";
 import logo from "../assets/logo.png";
 import { useLocation, Link } from "react-router-dom";
 import SettingsDropdown from "./SettingsDropdown";
+import { useAuth } from "../hooks/useAuthContext";
+import Avatar from "./Avatar";
 
 const NavBar = ({ toggleMobileMenu, isMobileMenuOpen }) => {
   const { pathname } = useLocation();
+  const { user } = useAuth();
+
   return (
     <nav className="bg-(--color-bg) sticky top-0 z-50 border-b border-(--color-border)">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,17 +40,17 @@ const NavBar = ({ toggleMobileMenu, isMobileMenuOpen }) => {
               >
                 Budget
               </Link>
+              <Link
+                to="/accounts"
+                className={`px-3 py-2 text-sm font-medium transition-colors duration-200 ${pathname.startsWith("/accounts") ? "text-(--color-fg)" : "text-(--color-muted) hover:text-(--color-accent)"}`}
+              >
+                Accounts
+              </Link>
               <a
                 href="/saving-goals"
                 className="text-(--color-muted) hover:text-(--color-accent) px-3 py-2 text-sm font-medium transition-colors duration-200"
               >
                 Saving Goals
-              </a>
-              <a
-                href="/cards"
-                className="text-(--color-muted) hover:text-(--color-accent) px-3 py-2 text-sm font-medium transition-colors duration-200"
-              >
-                Cards
               </a>
             </div>
           </div>
@@ -112,6 +116,12 @@ const NavBar = ({ toggleMobileMenu, isMobileMenuOpen }) => {
             >
               Budget
             </Link>
+            <Link
+              to="/accounts"
+              className={`block px-3 py-2 text-base font-medium rounded-md transition-colors duration-200 ${pathname.startsWith("/accounts") ? "text-(--color-fg)" : "text-(--color-muted) hover:bg-(--color-surface)"}`}
+            >
+              Accounts
+            </Link>
             <a
               href="/about"
               className="text-(--color-muted) block px-3 py-2 text-base font-medium hover:bg-(--color-surface) rounded-md transition-colors duration-200"
@@ -124,15 +134,18 @@ const NavBar = ({ toggleMobileMenu, isMobileMenuOpen }) => {
           </div>
           <div className="pt-4 pb-3 border-t border-(--color-border)">
             <div className="flex items-center px-5">
-              <div className="w-10 h-10 bg-(--color-surface) rounded-full flex items-center justify-center">
-                <span className="text-(--color-fg) font-medium">U</span>
-              </div>
+              <Avatar
+                src={user?.avatarUrl}
+                name={user?.fullName || user?.email || "User"}
+                size="md"
+                alt="Profile"
+              />
               <div className="ml-3">
                 <div className="text-base font-medium text-(--color-fg)">
-                  User Name
+                  {user?.fullName || user?.email?.split("@")[0] || "User"}
                 </div>
                 <div className="text-sm font-medium text-(--color-muted)">
-                  user@example.com
+                  {user?.email || ""}
                 </div>
               </div>
             </div>

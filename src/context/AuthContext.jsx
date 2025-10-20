@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
       id,
       email,
       fullName: user_metadata?.full_name || "",
-      avatarUrl: user_metadata?.avatar_url || "",
+      avatarUrl: user_metadata?.avatar_url || user_metadata?.picture || null,
     };
   };
 
