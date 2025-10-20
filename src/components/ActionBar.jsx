@@ -1,9 +1,9 @@
 import React from "react";
 import profilePhoto from "../assets/profile.jpg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faLink, faPlus } from "@fortawesome/free-solid-svg-icons";
 
-const ActionBar = () => {
+const ActionBar = ({ page }) => {
   return (
     <div className="flex w-full justify-between items-center mb-4">
       <div className="flex w-fit items-center gap-2">
@@ -25,10 +25,18 @@ const ActionBar = () => {
         </div>
       </div>
 
-      <button className="btn-secondary">
-        <FontAwesomeIcon icon={faPlus} />
-        <span className="truncate">Transaction</span>
-      </button>
+      <div className="flex gap-3">
+        {page === "dashboard" && (
+          <button className="btn-secondary">
+            <FontAwesomeIcon icon={faLink} />
+            <span className="truncate">Link Bank Account</span>
+          </button>
+        )}
+        <button className="btn-secondary">
+          <FontAwesomeIcon icon={faPlus} />
+          <span className="truncate">Transaction</span>
+        </button>
+      </div>
     </div>
   );
 };
