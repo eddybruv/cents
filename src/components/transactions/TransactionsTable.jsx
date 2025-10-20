@@ -73,17 +73,17 @@ const TransactionsTable = ({ data = transactions }) => {
   });
 
   return (
-    <div className="glass border border-(--color-border) rounded-md p-4 flex flex-col h-full">
+    <div className="glass border border-(--color-border) rounded-md p-3 sm:p-4 flex flex-col h-full">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         <input
           value={globalFilter ?? ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
           placeholder="Search transactions..."
-          className="w-full sm:w-64 px-3 py-2 text-sm rounded-md bg-(--color-surface) border border-(--color-border) focus:outline-none focus:border-(--color-accent)"
+          className="w-full sm:w-64 px-3 py-2 text-xs sm:text-sm rounded-md bg-(--color-surface) border border-(--color-border) focus:outline-none focus:border-(--color-accent)"
         />
       </div>
-      <div className="overflow-auto -mx-2 sm:mx-0">
-        <table className="w-full text-sm border-collapse">
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
+        <table className="w-full text-xs sm:text-sm border-collapse min-w-[600px]">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
