@@ -69,17 +69,10 @@ const AddBudgetModal = ({ onClose }) => {
           </label>
         </div>
         <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-3 py-2 text-xs rounded-md border border-(--color-border)"
-          >
+          <button type="button" onClick={onClose} className="btn-secondary">
             Cancel
           </button>
-          <button
-            type="submit"
-            className="px-3 py-2 text-xs rounded-md bg-(--color-accent) text-black font-semibold"
-          >
+          <button type="submit" className="btn-primary">
             Create
           </button>
         </div>

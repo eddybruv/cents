@@ -59,20 +59,20 @@ const MonthlyPacing = ({ extraAction, className = "" }) => {
   const danger = projected > totalBudget * 1.05;
   return (
     <div
-      className={`glass border border-(--color-border) rounded-md p-5 flex flex-col ${className}`}
+      className={`glass border border-(--color-border) rounded-md p-4 sm:p-5 flex flex-col ${className}`}
     >
-      <div className="flex items-start justify-between mb-3 gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-3">
         <div>
-          <h3 className="font-semibold text-base">Monthly pacing</h3>
-          <span className="block text-[12px] text-(--color-muted)">
+          <h3 className="font-semibold text-sm sm:text-base">Monthly pacing</h3>
+          <span className="block text-[11px] sm:text-[12px] text-(--color-muted)">
             {moment().format("MMM YYYY")}
           </span>
         </div>
         <div className="flex gap-2 items-start flex-wrap">
-          <div className="flex gap-2 mb-2 md:mb-0">
+          <div className="flex gap-2">
             <button
               onClick={() => setMode("summary")}
-              className={`px-2 py-1 rounded text-[11px] border border-(--color-border) ${
+              className={`px-2 py-1 rounded text-[10px] sm:text-[11px] border border-(--color-border) ${
                 mode === "summary"
                   ? "bg-(--color-accent) text-black font-semibold"
                   : "hover:border-(--color-accent)"
@@ -82,7 +82,7 @@ const MonthlyPacing = ({ extraAction, className = "" }) => {
             </button>
             <button
               onClick={() => setMode("forecast")}
-              className={`px-2 py-1 rounded text-[11px] border border-(--color-border) ${
+              className={`px-2 py-1 rounded text-[10px] sm:text-[11px] border border-(--color-border) ${
                 mode === "forecast"
                   ? "bg-(--color-accent) text-black font-semibold"
                   : "hover:border-(--color-accent)"
@@ -101,18 +101,22 @@ const MonthlyPacing = ({ extraAction, className = "" }) => {
         daysInMonth={daysInMonth}
       />
       {mode === "summary" && (
-        <div className="grid grid-cols-3 gap-4 mt-4 text-[12px]">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-4 text-[11px] sm:text-[12px]">
           <div>
             <p className="text-(--color-muted)">Budget</p>
-            <p className="font-semibold text-sm">{currency(totalBudget)}</p>
+            <p className="font-semibold text-xs sm:text-sm">
+              {currency(totalBudget)}
+            </p>
           </div>
           <div>
             <p className="text-(--color-muted)">Spent</p>
-            <p className="font-semibold text-sm">{currency(totalSpent)}</p>
+            <p className="font-semibold text-xs sm:text-sm">
+              {currency(totalSpent)}
+            </p>
           </div>
-          <div>
+          <div className="col-span-2 sm:col-span-1">
             <p className="text-(--color-muted)">Remain</p>
-            <p className="font-semibold text-sm">
+            <p className="font-semibold text-xs sm:text-sm">
               {currency(Math.max(0, totalBudget - totalSpent))}
             </p>
           </div>

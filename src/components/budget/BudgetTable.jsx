@@ -63,17 +63,14 @@ const BudgetRow = ({ b, onEdit, onDelete }) => {
         </div>
       </td>
       <td className="py-3 pr-3 text-xs flex gap-2">
-        <button
-          onClick={() => onEdit(b)}
-          className="px-2 py-1 border border-(--color-border) rounded hover:border-(--color-accent)"
-        >
+        <button onClick={() => onEdit(b)} className="btn-secondary">
           Edit
         </button>
         <button
           onClick={() => onDelete(b)}
           className="px-2 py-1 border border-red-500 text-red-400 rounded hover:bg-red-500/10"
         >
-          Del
+          Delete
         </button>
       </td>
     </tr>
@@ -186,17 +183,10 @@ const EditBudgetModal = ({ budget, onClose }) => {
           </label>
         </div>
         <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-3 py-2 text-xs rounded-md border border-(--color-border)"
-          >
+          <button type="button" onClick={onClose} className="btn-secondary">
             Cancel
           </button>
-          <button
-            type="submit"
-            className="px-3 py-2 text-xs rounded-md bg-(--color-accent) text-black font-semibold"
-          >
+          <button type="submit" className="btn-primary">
             Save
           </button>
         </div>

@@ -41,7 +41,7 @@ const BudgetModule = ({ categoryKey }) => {
         {!editing && (
           <button
             onClick={() => setEditing(true)}
-            className="text-[10px] px-2 py-1 border border-(--color-border) rounded hover:border-(--color-accent)"
+            className="text-[10px] btn-secondary"
           >
             Edit
           </button>
@@ -100,16 +100,10 @@ const BudgetModule = ({ categoryKey }) => {
             />
           </label>
           <div className="flex gap-2">
-            <button
-              onClick={() => setEditing(false)}
-              className="px-2 py-1 border border-(--color-border) rounded"
-            >
+            <button onClick={() => setEditing(false)} className="btn-secondary">
               Cancel
             </button>
-            <button
-              onClick={save}
-              className="px-2 py-1 bg-(--color-accent) text-black rounded font-semibold"
-            >
+            <button onClick={save} className="btn-primary">
               Save
             </button>
           </div>
