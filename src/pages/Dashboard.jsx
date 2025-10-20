@@ -83,13 +83,13 @@ const Dashboard = () => {
       <ActionBar page="dashboard" />
       <div className="space-y-4">
         <BudgetHeader />
-        <div className="flex-1 grid grid-cols-5 gap-4 w-full pt-1">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-5 gap-4 w-full pt-1">
           {/* <Card title="Total Balance" className="row-span-1 h-40" />
           <Card title="Total Expenditure" className="row-span-1 h-40" />
           <Card title="Total Savings" className="row-span-1 h-40" /> */}
           {/* <CardSummary className="col-span-2 row-span-4">04</CardSummary> */}
-          <ExpensesAnalysis className="col-span-4 row-span-1" />
-          <RecentTransactions className="col-span-1 row-span-1" />
+          <ExpensesAnalysis className="lg:col-span-4 row-span-1" />
+          <RecentTransactions className="lg:col-span-1 row-span-1" />
           {/* <div className="col-span-3 row-span-3 bg-green-900 h-99">07</div>
           <div className="col-span-2 row-span-3 bg-green-900 ...">08</div> */}
         </div>

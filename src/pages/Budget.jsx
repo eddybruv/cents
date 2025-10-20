@@ -19,7 +19,7 @@ const Budget = () => {
                 extraAction={
                   <button
                     onClick={() => setShowAdd(true)}
-                    className="px-3 py-2 text-xs rounded-md bg-(--color-accent) text-black font-semibold"
+                    className="btn-primary"
                   >
                     + Budget
                   </button>

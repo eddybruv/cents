@@ -15,21 +15,21 @@ const Transactions = () => {
     <BaseLayout>
       <div className="p-0 md:p-0 space-y-6">
         {/* layout already provides padding */}
-        <div className="flex flex-col md:flex-row md:items-center gap-3 justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
           <div>
-            <h1 className="text-xl font-semibold">Transactions</h1>
-            <p className="text-xs text-(--color-muted)">
+            <h1 className="text-xl sm:text-2xl font-semibold">Transactions</h1>
+            <p className="text-xs sm:text-sm text-(--color-muted)">
               Manage and review all account activity
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <button
               onClick={() => setShowModal(true)}
-              className="px-3 py-2 text-xs rounded-md bg-(--color-accent) text-black font-semibold hover:opacity-90"
+              className="btn-primary w-full sm:w-auto"
             >
               + Transaction
             </button>
-            <button className="px-3 py-2 text-xs rounded-md border border-(--color-border) hover:border-(--color-accent)">
+            <button className="btn-secondary w-full sm:w-auto">
               Upload Statement
             </button>
           </div>

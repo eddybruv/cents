@@ -23,10 +23,7 @@ const Landing = () => {
           <img src={logo} alt="cents" className="h-6 w-auto" />
         </Link>
         <div className="flex items-center gap-3">
-          <Link
-            to="/login"
-            className="px-4 py-2 rounded-md bg-(--color-accent) text-black text-sm font-semibold hover:opacity-90 transition"
-          >
+          <Link to="/login" className="btn-primary">
             Sign in
           </Link>
         </div>
@@ -59,16 +56,10 @@ const Landing = () => {
             surprises.
           </p>
           <div className="mt-8 flex items-center justify-center gap-3">
-            <Link
-              to="/login"
-              className="px-5 py-3 rounded-md bg-(--color-accent) text-black font-semibold hover:opacity-90 transition"
-            >
+            <Link to="/login" className="btn-primary">
               Get started
             </Link>
-            <a
-              href="#features"
-              className="px-5 py-3 rounded-md border border-(--color-border) text-sm hover:border-(--color-accent) transition"
-            >
+            <a href="#features" className="btn-secondary">
               Explore features
             </a>
           </div>
