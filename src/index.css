@@ -43,6 +43,31 @@ body {
   color: var(--color-fg);
 }
 
+/* Primary button, theme-aware */
+.btn-primary {
+  background: var(--color-accent);
+  min-width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem; /* 8px */
+  border: 1px solid transparent;
+  border-radius: 0.5rem; /* 8px */
+  padding: 0.5rem 1rem; /* 8px 16px */
+  color: #0e0d0d;
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 600; /* font-semibold */
+  cursor: pointer;
+  transition:
+    opacity 200ms,
+    transform 100ms;
+}
+.btn-primary:hover {
+  opacity: 0.9;
+}
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
 /* Secondary button, theme-aware */
 .btn-secondary {
   background: var(--color-surface);
