@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import masterCardLogo from "../../assets/mastercard-logo.png";
 import ccChip from "../../assets/cc-chip.png";
+import { useAuth } from "../../hooks/useAuthContext";
 
 const CardBackground = ({ className = "", children }) => {
   return (
@@ -20,12 +21,19 @@ const CardBackground = ({ className = "", children }) => {
 };
 
 export const CardSummary = ({ className = "" }) => {
+  const { user } = useAuth();
   const [cards] = React.useState([
     { id: 1, title: "Card 1" },
     { id: 2, title: "Card 2" },
     { id: 3, title: "Card 3" },
   ]);
   const [activeCard] = React.useState(cards[0]);
+
+  const getDisplayName = () => {
+    if (user?.fullName) return user.fullName;
+    if (user?.email) return user.email.split("@")[0];
+    return "Cardholder";
+  };
 
   return (
     <CardBackground className={className}>
@@ -59,7 +67,7 @@ export const CardSummary = ({ className = "" }) => {
               </div>
               <p className="text-xl font-light px-3">**** **** **** 1234</p>
               <div className="flex justify-between items-end px-3">
-                <p>Bimela</p>
+                <p>{getDisplayName()}</p>
                 <div className="flex flex-col items-center">
                   <p className="text-xs text-secondary">Expiry Date</p>
                   <p>12/27</p>
