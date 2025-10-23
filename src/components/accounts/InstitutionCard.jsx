@@ -3,17 +3,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faTrash } from "@fortawesome/free-solid-svg-icons";
 import AccountRow from "./AccountRow";
 import Avatar from "../Avatar";
+import { formatCurrency } from "../../lib/formatCurrency";
 
 const InstitutionCard = ({
   institution,
   onDeleteInstitution,
   onDeleteAccount,
   onRenameAccount,
+  accounts,
 }) => {
   const [expanded, setExpanded] = React.useState(true);
 
-  const totalBalance = institution.accounts.reduce(
-    (sum, acc) => sum + acc.balance,
+  console.log(accounts);
+  const totalBalance = accounts.reduce(
+    (sum, acc) => sum + parseFloat(acc.balanceCurrent || 0),
     0,
   );
 
@@ -23,17 +26,16 @@ const InstitutionCard = ({
       <div className="p-4 bg-(--color-surface)/50">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Avatar
-              src={institution.logo}
-              name={institution.name}
-              size="lg"
+            <img
+              src={`data:image/png;base64,${institution.logo}`}
               alt={institution.name}
+              className="w-10 h-10 rounded-md object-contain bg-(--color-surface) p-1"
             />
             <div>
               <h3 className="font-semibold text-base">{institution.name}</h3>
               <p className="text-sm text-(--color-muted)">
-                {institution.accounts.length} account
-                {institution.accounts.length !== 1 ? "s" : ""}
+                {accounts.length} account
+                {accounts.length !== 1 ? "s" : ""}
               </p>
             </div>
           </div>
@@ -41,11 +43,7 @@ const InstitutionCard = ({
             <div className="text-right flex-1 sm:flex-none">
               <p className="text-xs text-(--color-muted)">Total Balance</p>
               <p className="font-semibold text-base sm:text-lg">
-                $
-                {totalBalance.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
+                {formatCurrency(totalBalance)}
               </p>
             </div>
             <button
@@ -75,13 +73,12 @@ const InstitutionCard = ({
       {/* Accounts List */}
       {expanded && (
         <div className="divide-y divide-(--color-border)">
-          {institution.accounts.map((account) => (
+          {accounts.map((account) => (
             <AccountRow
               key={account.id}
               account={account}
               institutionId={institution.id}
-              onDelete={onDeleteAccount}
-              onRename={onRenameAccount}
+              
             />
           ))}
         </div>

@@ -7,9 +7,10 @@ import {
   faPencilAlt,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
+import { formatCurrency } from "../../lib/formatCurrency";
 
 const AccountRow = ({ account, institutionId, onDelete, onRename }) => {
-  const getAccountIcon = (type, subtype) => {
+  const getAccountIcon = (subtype) => {
     if (subtype === "checking") {
       return faMoneyCheckAlt;
     }
@@ -25,7 +26,7 @@ const AccountRow = ({ account, institutionId, onDelete, onRename }) => {
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="p-2 rounded-lg bg-(--color-surface) text-(--color-muted) flex-shrink-0">
             <FontAwesomeIcon
-              icon={getAccountIcon(account.type, account.subtype)}
+              icon={getAccountIcon(account.subtype)}
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
           </div>
@@ -46,11 +47,7 @@ const AccountRow = ({ account, institutionId, onDelete, onRename }) => {
         <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
           <div className="text-left sm:text-right">
             <p className="font-semibold text-base sm:text-lg">
-              $
-              {account.balance.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {formatCurrency(account.balanceCurrent)}
             </p>
           </div>
           <div className="flex items-center gap-1">
