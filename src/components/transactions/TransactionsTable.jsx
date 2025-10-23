@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -19,8 +19,8 @@ const currency = (n) =>
   );
 
 const TransactionsTable = ({ data = transactions }) => {
-  const [globalFilter, setGlobalFilter] = React.useState("");
-  const [sorting, setSorting] = React.useState([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [sorting, setSorting] = useState([]);
 
   const columns = React.useMemo(
     () => [
@@ -29,14 +29,18 @@ const TransactionsTable = ({ data = transactions }) => {
         cell: (info) => moment(info.getValue()).format("MMM D"),
         sortingFn: "datetime",
       }),
-      columnHelper.accessor("merchant", {
-        header: "Merchant",
-        cell: (info) => (
-          <span className="truncate max-w-[140px] inline-block">
-            {info.getValue()}
-          </span>
-        ),
-      }),
+      columnHelper.accessor(
+        (row) => row.merchantName || row.name || "Unknown",
+        {
+          header: "Merchant",
+          id: "merchantName",
+          cell: (info) => (
+            <span className="truncate max-w-[140px] inline-block">
+              {info.getValue()}
+            </span>
+          ),
+        },
+      ),
       columnHelper.accessor("category", {
         header: "Category",
       }),

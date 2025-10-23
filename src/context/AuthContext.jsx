@@ -3,21 +3,21 @@ import React, { createContext, useEffect, useState } from "react";
 import { supabase } from "../supabase";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSessionStorage } from "usehooks-ts";
+import { useCreateLinkToken } from "../hooks/useCreateLinkToken";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const { createLinkToken, error: createLinkTokenError } = useCreateLinkToken();
+
   const [user, setUser, removeUser] = useSessionStorage("user", null);
-  const [plaidData, setPlaidData, removePlaidData] = useSessionStorage(
-    "plaidData",
-    null,
-  );
+
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
   const destructureUserFromSession = (user) => {
-    if (!user) return null;
+    if (!user?.id) return null;
     const { id, email, user_metadata } = user;
     return {
       id,
@@ -34,7 +34,12 @@ export const AuthProvider = ({ children }) => {
         const {
           data: { session },
         } = await supabase.auth.getSession();
-        setUser(destructureUserFromSession(session?.user));
+        setUser((prev) => ({
+          ...prev,
+          ...destructureUserFromSession(session?.user),
+          accessToken: session?.access_token,
+          refreshToken: session?.refresh_token,
+        }));
       } finally {
         setLoading(false);
       }
@@ -52,7 +57,12 @@ export const AuthProvider = ({ children }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       const userData = destructureUserFromSession(session?.user);
-      setUser(userData);
+      setUser((prev) => ({
+        ...prev,
+        ...userData,
+        accessToken: session?.access_token,
+        refreshToken: session?.refresh_token,
+      }));
       setLoading(false);
     });
 
@@ -64,12 +74,36 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (
       !loading &&
-      user &&
+      user?.id &&
       (location.pathname === "/" || location.pathname === "/login")
     ) {
       navigate("/dashboard", { replace: true });
     }
   }, [loading, user, location.pathname, navigate]);
+
+  // create link token when we have a user but no plaidLinkToken yet
+  useEffect(() => {
+    if (!user?.id || user.plaidLinkToken) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = await createLinkToken(user.id);
+        if (!cancelled && token) {
+          setUser((prev) => ({ ...prev, plaidLinkToken: token }));
+        }
+        if (createLinkTokenError) {
+          console.error("Error creating link token:", createLinkTokenError);
+        }
+      } catch (err) {
+        console.error("createLinkToken failed", err);
+      }
+    })();
+
+    // return () => {
+    //   cancelled = true;
+    // };
+  }, [user?.id]); // run when user becomes available
 
   const signInWithGoogle = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -93,7 +127,6 @@ export const AuthProvider = ({ children }) => {
       console.error("Error signing out:", error);
     }
     removeUser();
-    removePlaidData();
     navigate("/");
   };
 
@@ -102,9 +135,6 @@ export const AuthProvider = ({ children }) => {
     loading,
     signInWithGoogle,
     signOut,
-    plaidData,
-    setPlaidData,
-    removePlaidData,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
