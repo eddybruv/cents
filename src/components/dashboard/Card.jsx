@@ -2,6 +2,7 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown, faCaretUp } from "@fortawesome/free-solid-svg-icons";
 import Decimal from "decimal.js";
+import { formatCurrency } from "../../lib/formatCurrency";
 
 const CardBackground = ({ className = "", children }) => {
   return (
@@ -27,21 +28,11 @@ export const Card = ({
     return value;
   };
 
-  const formatValue = (value) => {
-    if (value === undefined || value === null) return "N/A";
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "CAD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
-  };
-
   return (
     <CardBackground className={className}>
       <div className="flex flex-col p-4">
         <p className="text-sm text-(--color-muted)">{title}</p>
-        <p className="text-2xl mt-2">{formatValue(value)}</p>
+        <p className="text-2xl mt-2">{formatCurrency(value)}</p>
         <div
           className={`flex items-center gap-1 text-sm font-semibold mt-1 ${
             sign ? "text-(--color-accent)" : "text-red-500"

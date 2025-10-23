@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import {
   AreaChart,
   Area,
@@ -11,7 +11,7 @@ import {
   Brush,
 } from "recharts";
 import moment from "moment";
-import { spendingByDay, categories } from "../../data/spendingSample";
+// import { spendingByDay, categories } from "../../data/spendingSample";
 
 const formatCurrency = (n) =>
   new Intl.NumberFormat("en-US", {
@@ -24,38 +24,50 @@ const formatCurrency = (n) =>
 const formatDate = (iso) => moment(iso).format("MMM D");
 
 // Aggregate sample into stacked series per category per day
-const buildSeries = (rows, visible) => {
+const buildSeries = (rows, categories, visible) => {
   // get days range
   const days = Array.from(new Set(rows.map((r) => r.date))).sort();
+
   const mapByDay = days.map((d) => {
     const row = { date: d };
-    for (const c of categories) row[c.key] = 0;
+    for (const c of categories) {
+      row[c.name] = 0;
+    }
     return row;
   });
+
   const dayIndex = Object.fromEntries(days.map((d, i) => [d, i]));
+
   for (const r of rows) {
     if (!visible[r.category]) continue;
     const idx = dayIndex[r.date];
-    mapByDay[idx][r.category] += r.amount;
+    mapByDay[idx][r.category] += parseFloat(r.amount);
   }
+
   return mapByDay;
 };
 
-const ExpensesAnalysis = ({className}) => {
-  const [visibleCats, setVisibleCats] = React.useState(
-    Object.fromEntries(categories.map((c) => [c.key, true])),
+const ExpensesAnalysis = ({
+  className,
+  categories = [],
+  transactions = [],
+}) => {
+  const [visibleCats, setVisibleCats] = useState(
+    Object.fromEntries(categories.map((c) => [c.name, true])),
   );
 
-  const data = React.useMemo(
-    () => buildSeries(spendingByDay, visibleCats),
-    [visibleCats],
+  const data = useMemo(
+    () => buildSeries(transactions, categories, visibleCats),
+    [visibleCats, categories, transactions],
   );
 
   const toggleCat = (k) =>
     setVisibleCats((prev) => ({ ...prev, [k]: !prev[k] }));
 
   return (
-    <div className={` glass rounded-sm border border-(--color-border) p-4 flex flex-col ${className}`}>
+    <div
+      className={` glass rounded-sm border border-(--color-border) p-4 flex flex-col ${className}`}
+    >
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-xl font-semibold">Spending overview</h3>
@@ -64,16 +76,16 @@ const ExpensesAnalysis = ({className}) => {
         <div className="flex gap-2 flex-wrap justify-end">
           {categories.map((c) => (
             <button
-              key={c.key}
-              onClick={() => toggleCat(c.key)}
+              key={c.name}
+              onClick={() => toggleCat(c.name)}
               className="px-2 py-1 rounded-md border hover:cursor-pointer text-xs"
               style={{
-                background: visibleCats[c.key] ? c.color : "transparent",
+                background: visibleCats[c.name] ? c.color : "transparent",
                 borderColor: "var(--color-border)",
-                color: visibleCats[c.key] ? "#0b0b0c" : "var(--color-fg)",
+                color: visibleCats[c.name] ? "#0b0b0c" : "var(--color-fg)",
               }}
             >
-              {c.key}
+              {c.name}
             </button>
           ))}
         </div>
@@ -88,8 +100,8 @@ const ExpensesAnalysis = ({className}) => {
             <defs>
               {categories.map((c) => (
                 <linearGradient
-                  id={`grad-${c.key}`}
-                  key={c.key}
+                  id={`grad-${c.name}`}
+                  key={c.name}
                   x1="0"
                   y1="0"
                   x2="0"
@@ -121,14 +133,14 @@ const ExpensesAnalysis = ({className}) => {
             />
             {categories.map((c) => (
               <Area
-                key={c.key}
+                key={c.name}
                 type="monotone"
-                dataKey={c.key}
+                dataKey={c.name}
                 stackId="1"
                 stroke={c.color}
-                fill={`url(#grad-${c.key})`}
+                fill={`url(#grad-${c.name})`}
                 strokeWidth={2}
-                hide={!visibleCats[c.key]}
+                hide={!visibleCats[c.name]}
                 isAnimationActive={true}
               />
             ))}
@@ -145,13 +157,13 @@ const ExpensesAnalysis = ({className}) => {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
         {categories.slice(0, 4).map((c) => {
-          const sum = data.reduce((s, d) => s + (d[c.key] || 0), 0);
+          const sum = data.reduce((s, d) => s + (d[c.name] || 0), 0);
           return (
             <div
-              key={c.key}
+              key={c.name}
               className="rounded-md border border-(--color-border) p-3"
             >
-              <p className="text-xs text-(--color-muted)">{c.key}</p>
+              <p className="text-xs text-(--color-muted)">{c.name}</p>
               <p className="text-lg font-semibold">{formatCurrency(sum)}</p>
             </div>
           );

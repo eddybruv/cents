@@ -1,21 +1,37 @@
 import React from "react";
 import moment from "moment";
-import { spendingByDay, categories } from "../../data/spendingSample";
+import { useNavigate } from "react-router-dom";
 
-const categoryMap = Object.fromEntries(categories.map(c => [c.key, c.color]));
-
-const RecentTransactions = ({ limit = 10 , className}) => {
+const RecentTransactions = ({
+  limit = 10,
+  className = "",
+  transactions = [],
+  categories = [],
+}) => {
+  const navigate = useNavigate();
   const rows = React.useMemo(() => {
-    return [...spendingByDay]
-      .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
-      .slice(0, limit);
-  }, [limit]);
+    return transactions.slice(0, limit);
+  }, [limit, transactions]);
+
+  const categoryMap = React.useMemo(() => {
+    const map = {};
+    categories.forEach((c) => {
+      map[c.name] = c.color;
+    });
+    return map;
+  }, [categories]);
+
+  const handleViewAll = () => {
+    navigate("/transactions");
+  };
 
   return (
-    <div className={`glass rounded-sm border border-(--color-border) h-full flex flex-col overflow-hidden ${className}`}>
+    <div
+      className={`glass rounded-sm border border-(--color-border) h-full flex flex-col overflow-hidden ${className}`}
+    >
       <div className="p-4 border-b border-(--color-border)">
         <h3 className="text-lg font-semibold">Recent transactions</h3>
-        <p className="text-(--color-muted) text-xs">Latest activity (sample data)</p>
+        <p className="text-(--color-muted) text-xs">Latest activity</p>
       </div>
       <ul className="flex-1 overflow-auto divide-y divide-(--color-border)">
         {rows.map((tx, idx) => {
@@ -28,20 +44,30 @@ const RecentTransactions = ({ limit = 10 , className}) => {
                 aria-hidden
               />
               <div className="flex-1 min-w-0">
-                <p className="truncate font-medium">{tx.merchant}</p>
+                <p className="truncate font-medium">
+                  {tx.merchantName || tx.name}
+                </p>
                 <p className="text-[11px] text-(--color-muted)">
                   {tx.category} • {moment(tx.date).format("MMM D")}
                 </p>
               </div>
               <div className="font-semibold tabular-nums">
-                {new Intl.NumberFormat("en-US", { style: "currency", currency: "CAD" }).format(tx.amount)}
+                {new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "CAD",
+                }).format(tx.amount)}
               </div>
             </li>
           );
         })}
       </ul>
       <div className="p-3 border-t border-(--color-border) text-center">
-        <button className="text-xs text-(--color-muted) hover:text-(--color-fg) transition">View all</button>
+        <button
+          onClick={handleViewAll}
+          className="text-xs text-(--color-muted) hover:cursor-pointer hover:text-(--color-fg) transition"
+        >
+          View all
+        </button>
       </div>
     </div>
   );
