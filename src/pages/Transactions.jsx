@@ -1,15 +1,15 @@
 import React from "react";
 import TransactionsTable from "../components/transactions/TransactionsTable";
-import { transactions } from "../data/transactionsSample";
 import NewTransactionModal from "../components/transactions/NewTransactionModal";
 import BaseLayout from "../layout/BaseLayout"; // added
 import ActionBar from "../components/ActionBar"; // optional for consistency
+import { useTransactions } from "../hooks/useTransactions";
 
 const Transactions = () => {
-  const [data, setData] = React.useState(transactions);
+  const { data } = useTransactions();
   const [showModal, setShowModal] = React.useState(false);
 
-  const addTransaction = (tx) => setData((d) => [tx, ...d]);
+  // const addTransaction = (tx) => setData((d) => [tx, ...d]);
 
   return (
     <BaseLayout>
@@ -38,7 +38,7 @@ const Transactions = () => {
         <NewTransactionModal
           open={showModal}
           onClose={() => setShowModal(false)}
-          onSave={addTransaction}
+          onSave={() => {}}
         />
       </div>
     </BaseLayout>

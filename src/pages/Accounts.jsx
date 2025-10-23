@@ -1,75 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import BaseLayout from "../layout/BaseLayout";
-import { usePlaidLink } from "react-plaid-link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLink, faUniversity } from "@fortawesome/free-solid-svg-icons";
+import { faUniversity } from "@fortawesome/free-solid-svg-icons";
 import {
   InstitutionCard,
   RenameModal,
   DeleteInstitutionModal,
   DeleteAccountModal,
 } from "../components/accounts";
+import PlaidLinkButton from "../components/PlaidLinkButton";
+import { useInstitutions } from "../hooks/useInstitutions";
+import { useAccounts } from "../hooks/useAccounts";
 
 const Accounts = () => {
-  const [institutions, setInstitutions] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [linkToken] = React.useState(null);
-  const [editingAccount, setEditingAccount] = React.useState(null);
-  const [deleteModal, setDeleteModal] = React.useState(null); // { type: 'institution' | 'account', data: {...} }
+  const [institutions, setInstitutions] = useState([]);
+  const [editingAccount, setEditingAccount] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null);
 
-  // Mock data for now - replace with API calls
-  React.useEffect(() => {
-    // Simulate loading institutions
-    setTimeout(() => {
-      setInstitutions([
-        {
-          id: "inst_1",
-          name: "Chase Bank",
-          logo: null,
-          accounts: [
-            {
-              id: "acc_1",
-              name: "Checking Account",
-              mask: "1234",
-              type: "depository",
-              subtype: "checking",
-              balance: 5420.5,
-            },
-            {
-              id: "acc_2",
-              name: "Savings Account",
-              mask: "5678",
-              type: "depository",
-              subtype: "savings",
-              balance: 12300.0,
-            },
-          ],
-        },
-      ]);
-      setLoading(false);
-    }, 500);
-  }, []);
-
-  // Plaid Link setup
-  const { open, ready } = usePlaidLink({
-    token: linkToken,
-    onSuccess: (public_token, metadata) => {
-      console.log("Plaid Link Success:", { public_token, metadata });
-      // TODO: Send public_token to backend
-    },
-  });
-
-  const handleAddAccount = async () => {
-    // TODO: Create link token from backend
-    console.log("Add account clicked");
-    // For now, just open if ready
-    if (ready && linkToken) {
-      open();
-    }
-  };
+  const { data: institutionData, error, isLoading } = useInstitutions();
+  const { data: accountData, isLoading: isLoadingAccounts } = useAccounts();
 
   const handleDeleteInstitution = async (institutionId) => {
-    const institution = institutions.find((inst) => inst.id === institutionId);
+    const institution = institutionData.find(
+      (inst) => inst.id === institutionId,
+    );
     if (!institution) return;
 
     setDeleteModal({
@@ -89,7 +43,9 @@ const Accounts = () => {
   };
 
   const handleDeleteAccount = async (institutionId, accountId) => {
-    const institution = institutions.find((inst) => inst.id === institutionId);
+    const institution = institutionData.find(
+      (inst) => inst.id === institutionId,
+    );
     const account = institution?.accounts.find((acc) => acc.id === accountId);
     if (!account || !institution) return;
 
@@ -147,7 +103,7 @@ const Accounts = () => {
     // TODO: Call backend API to update name
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <BaseLayout>
         <div className="flex items-center justify-center h-64">
@@ -168,17 +124,11 @@ const Accounts = () => {
               Manage your connected institutions and accounts
             </p>
           </div>
-          <button
-            onClick={handleAddAccount}
-            className="btn-primary w-full sm:w-auto"
-          >
-            <FontAwesomeIcon icon={faLink} />
-            Connect Account
-          </button>
+          <PlaidLinkButton />
         </div>
 
         {/* Empty State */}
-        {institutions.length === 0 ? (
+        {institutionData.length === 0 ? (
           <div className="glass border border-(--color-border) rounded-lg p-12 text-center">
             <div className="max-w-md mx-auto">
               <FontAwesomeIcon
@@ -191,20 +141,25 @@ const Accounts = () => {
               <p className="text-(--color-muted) mb-6">
                 Connect your bank account to start tracking your finances
               </p>
-              <button onClick={handleAddAccount} className="btn-primary">
+              <button onClick={() => {}} className="btn-primary">
                 Connect Your First Account
               </button>
             </div>
           </div>
         ) : (
           <div className="space-y-4">
-            {institutions.map((institution) => (
+            {institutionData.map((institution) => (
               <InstitutionCard
                 key={institution.id}
                 institution={institution}
                 onDeleteInstitution={handleDeleteInstitution}
                 onDeleteAccount={handleDeleteAccount}
                 onRenameAccount={handleRenameAccount}
+                accounts={
+                  accountData?.filter(
+                    (acc) => acc.institutionId === institution.id,
+                  ) || []
+                }
               />
             ))}
           </div>

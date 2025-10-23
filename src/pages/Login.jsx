@@ -3,14 +3,16 @@ import React from "react";
 import { useAuth } from "../hooks/useAuthContext";
 import logo from "../assets/logo.png";
 import { Link } from "react-router-dom";
+import { useToast } from "../hooks/useToast";
 
 const Login = () => {
   const { signInWithGoogle } = useAuth();
+  const toast = useToast();
 
   const handleGoogleSignIn = async () => {
     const { error } = await signInWithGoogle();
     if (error) {
-      alert("Error signing in: " + error.message);
+      toast.error("Google sign-in failed. Please try again.");
     }
   };
 
