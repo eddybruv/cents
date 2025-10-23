@@ -11,6 +11,7 @@ export const institutions = pgTable("institutions", {
   name: text("name").notNull(),
   accessToken: text("access_token").notNull(),
   transactionCursor: text("transaction_cursor").unique(),
+  logo: text("logo"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
