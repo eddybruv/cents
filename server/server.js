@@ -5,6 +5,10 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import PlaidRoute from "./routes/Plaid.route.js";
+import TransactionRoute from "./routes/Transactions.route.js";
+import AccountsRoute from "./routes/Accounts.route.js";
+import CategoriesRoute from "./routes/Categories.route.js";
+import InstitutionsRoute from "./routes/Institutions.route.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,6 +22,10 @@ const PORT = process.env.PORT || 8000;
 app.use(cors());
 app.use(express.json());
 app.use("/api/plaid", PlaidRoute);
+app.use("/api/transactions", TransactionRoute);
+app.use("/api/accounts", AccountsRoute);
+app.use("/api/categories", CategoriesRoute);
+app.use("/api/institutions", InstitutionsRoute);
 
 // test route
 app.get("/", (req, res) => {
