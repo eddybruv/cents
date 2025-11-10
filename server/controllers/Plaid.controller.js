@@ -149,15 +149,15 @@ const SyncAccounts = async (accessToken, institutionId) => {
             institutionId,
           })
           .onConflictDoUpdate({
-            target: accounts.plaidAccountId,
+            target: [accounts.mask, accounts.type],
             set: {
               name,
-              type,
               subtype,
-              mask,
               balanceAvailable,
               balanceCurrent,
               currencyCode,
+              institutionId,
+              plaidAccountId,
             },
           });
       }),

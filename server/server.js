@@ -9,6 +9,7 @@ import TransactionRoute from "./routes/Transactions.route.js";
 import AccountsRoute from "./routes/Accounts.route.js";
 import CategoriesRoute from "./routes/Categories.route.js";
 import InstitutionsRoute from "./routes/Institutions.route.js";
+import InvestmentsRoute from "./routes/Investments.route.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,6 +27,7 @@ app.use("/api/transactions", TransactionRoute);
 app.use("/api/accounts", AccountsRoute);
 app.use("/api/categories", CategoriesRoute);
 app.use("/api/institutions", InstitutionsRoute);
+app.use("/api/investments", InvestmentsRoute);
 
 // test route
 app.get("/", (req, res) => {
