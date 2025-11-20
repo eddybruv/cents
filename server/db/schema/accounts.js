@@ -9,6 +9,7 @@ export const accounts = pgTable('accounts', {
   type: text('type'),
   subtype: text('subtype'),
   mask: text('mask'),
+  typeMaskUnique: text('type_mask_unique').unique().notNull(),
   balanceAvailable: numeric('balance_available', { precision: 12, scale: 2 }),
   balanceCurrent: numeric('balance_current', { precision: 12, scale: 2 }),
   currencyCode: text('currency_code').default('CAD'),

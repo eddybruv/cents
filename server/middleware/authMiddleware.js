@@ -4,7 +4,7 @@ import { supabaseClient } from "../lib/supabase.js";
 
 const authenticateToken = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.replace("Bearer ", "");
+    const token = req.get('Authorization').replace("Bearer ", "");
     if (!token) {
       return res.status(401).json({ error: "No token provided" });
     }
