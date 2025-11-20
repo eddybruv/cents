@@ -11,13 +11,12 @@ export const SyncTransactions = async (accessToken, institutionId) => {
     let modified = [];
     let removed = [];
 
-    // let dbResponse = await db
-    //   .select({ cursor: institutions.transactionCursor })
-    //   .from(institutions)
-    //   .where(eq(institutions.id, institutionId));
+    let dbResponse = await db
+      .select({ cursor: institutions.transactionCursor })
+      .from(institutions)
+      .where(eq(institutions.id, institutionId));
 
-    // let cursor = dbResponse[0]?.cursor || null;
-    let cursor = null;
+    let cursor = dbResponse[0]?.cursor || null;
 
     let hasMore = true;
 
@@ -41,17 +40,16 @@ export const SyncTransactions = async (accessToken, institutionId) => {
       .set({ transactionCursor: cursor })
       .where(eq(institutions.id, institutionId));
 
-    // insert added
     await Promise.all(
       added.map(async (tx) => {
-        await UpsertTransaction(tx, institutionId);
+        await UpsertTransaction(tx);
       }),
     );
 
     // update modified
     await Promise.all(
       modified.map(async (tx) => {
-        await UpsertTransaction(tx, institutionId);
+        await UpsertTransaction(tx);
       }),
     );
 
@@ -63,12 +61,23 @@ export const SyncTransactions = async (accessToken, institutionId) => {
     );
 
     console.log("✅ SyncTransactions completed");
-    return true;
+    return {
+      synced: true,
+      added: added.length,
+      modified: modified.length,
+      removed: removed.length,
+    };
   } catch (error) {
     console.error(
       "❌ SyncTransactions:",
       error?.response?.data || error.message,
     );
-    return false;
+
+    await db
+      .update(institutions)
+      .set({ transactionCursor: null })
+      .where(eq(institutions.id, institutionId));
+
+    return { synced: false, added: 0, modified: 0, removed: 0 };
   }
 };

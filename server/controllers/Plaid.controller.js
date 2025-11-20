@@ -5,6 +5,7 @@ import { institutions } from "../db/schema/institutions.js";
 import { accounts } from "../db/schema/accounts.js";
 import plaidClient from "../services/plaidConfig.js";
 import { UpsertTransaction } from "../helper/upsertTransaction.js";
+import { SyncTransactions } from "../helper/syncTransactions.js";
 
 const COUNTRY_CODES = process.env.VITE_PLAID_COUNTRY_CODES.split(",");
 
@@ -58,9 +59,9 @@ export const ExchangePublicToken = async (req, res) => {
       userInstitutions.map((i) => SyncAccounts(i.accessToken, i.id)),
     );
 
-    // await Promise.all(
-    //   userInstitutions.map((i) => SyncTransactions(i.accessToken, i.id)),
-    // );
+    await Promise.all(
+      userInstitutions.map((i) => SyncTransactions(i.accessToken, i.id)),
+    );
 
     res.json(data);
   } catch (error) {
@@ -135,6 +136,8 @@ const SyncAccounts = async (accessToken, institutionId) => {
           },
         } = acc;
 
+        const typeMaskUnique = `${type}-${mask}`;
+
         await db
           .insert(accounts)
           .values({
@@ -143,13 +146,14 @@ const SyncAccounts = async (accessToken, institutionId) => {
             type,
             subtype,
             mask,
+            typeMaskUnique,
             balanceAvailable,
             balanceCurrent,
             currencyCode,
             institutionId,
           })
           .onConflictDoUpdate({
-            target: [accounts.mask, accounts.type],
+            target: [accounts.typeMaskUnique],
             set: {
               name,
               subtype,
@@ -166,58 +170,6 @@ const SyncAccounts = async (accessToken, institutionId) => {
     return true;
   } catch (error) {
     console.error("❌ SyncAccounts:", error?.response?.data || error.message);
-    return false;
-  }
-};
-
-// sync transactions
-const SyncTransactions = async (accessToken, institutionId) => {
-  try {
-    let added = [];
-    let modified = [];
-    let removed = [];
-
-    // let dbResponse = await db
-    //   .select({ cursor: institutions.transactionCursor })
-    //   .from(institutions)
-    //   .where(eq(institutions.id, institutionId));
-
-    // let cursor = dbResponse[0]?.cursor || null;
-    let cursor = null;
-
-    let hasMore = true;
-
-    while (hasMore) {
-      const { data } = await plaidClient.transactionsSync({
-        access_token: accessToken,
-        cursor,
-      });
-
-      added = added.concat(data.added);
-      modified = modified.concat(data.modified);
-      removed = removed.concat(data.removed);
-
-      hasMore = data.has_more;
-
-      cursor = data.next_cursor;
-    }
-
-    await db
-      .update(institutions)
-      .set({ transactionCursor: cursor })
-      .where(eq(institutions.id, institutionId));
-
-    // insert added
-    await Promise.all(
-      added.map(async (tx) => {
-        await UpsertTransaction(tx, institutionId);
-      }),
-    );
-  } catch (error) {
-    console.error(
-      "❌ SyncTransactions:",
-      error?.response?.data || error.message,
-    );
     return false;
   }
 };

@@ -1,6 +1,6 @@
 import { db } from "../db/db.js";
 import { transactions } from "../db/schema/transactions.js";
-import { mapPlaidCategory } from "./mapCategory.js";
+import { categorizeTransaction } from "./mapCategory.js";
 
 export const UpsertTransaction = async (tx) => {
   // Find category or insert if new
@@ -9,15 +9,14 @@ export const UpsertTransaction = async (tx) => {
     transaction_id: plaidTransactionId,
     name,
     amount,
-    authorized_date: date,
-    category,
+    authorized_date: authorizedDate,
+    date,
     payment_channel: paymentChannel,
     pending,
     merchant_name: merchantName,
   } = tx;
 
-  const categoryId = await mapPlaidCategory(category, tx);
-
+  const { id: categoryId } = categorizeTransaction(tx);
 
   // Upsert transaction
   await db
@@ -27,7 +26,7 @@ export const UpsertTransaction = async (tx) => {
       plaidTransactionId,
       name,
       amount,
-      date,
+      date: authorizedDate || date,
       merchantName,
       paymentChannel,
       categoryId,

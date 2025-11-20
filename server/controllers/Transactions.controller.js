@@ -17,13 +17,22 @@ export const SyncPlaidTransactions = async (req, res) => {
     if (institution.length === 0) {
       return res.status(404).json({ error: "Institution not found" });
     }
+
     const accessToken = institution[0].accessToken;
-    const synced = await SyncTransactions(accessToken, institutionId);
+    const { synced, added, modified, removed } = await SyncTransactions(
+      accessToken,
+      institutionId,
+    );
 
     if (!synced) {
       return res.status(500).json({ error: "Failed to sync transactions" });
     }
-    res.json({ message: "Transactions synced successfully" });
+    res.json({
+      message: "Transactions synced successfully",
+      added,
+      modified,
+      removed,
+    });
   } catch (error) {
     console.error("❌ SyncPlaidTransactions:", error);
     res.status(500).json({ error: "Failed to sync transactions" });
