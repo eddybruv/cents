@@ -4,12 +4,16 @@ import NewTransactionModal from "../components/transactions/NewTransactionModal"
 import BaseLayout from "../layout/BaseLayout"; // added
 import ActionBar from "../components/ActionBar"; // optional for consistency
 import { useTransactions } from "../hooks/useTransactions";
+import { useToast } from "../hooks/useToast";
 
 const Transactions = () => {
-  const { data } = useTransactions();
+  const { data, error } = useTransactions();
+  const toast = useToast();
   const [showModal, setShowModal] = React.useState(false);
 
-  // const addTransaction = (tx) => setData((d) => [tx, ...d]);
+  if (error) {
+    toast.error("Failed to load transactions.");
+  }
 
   return (
     <BaseLayout>

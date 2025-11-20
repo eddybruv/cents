@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import ChartTooltip from "../Tooltip/ChartTooltip";
 import {
   AreaChart,
   Area,
@@ -11,7 +12,6 @@ import {
   Brush,
 } from "recharts";
 import moment from "moment";
-// import { spendingByDay, categories } from "../../data/spendingSample";
 
 const formatCurrency = (n) =>
   new Intl.NumberFormat("en-US", {
@@ -24,9 +24,28 @@ const formatCurrency = (n) =>
 const formatDate = (iso) => moment(iso).format("MMM D");
 
 // Aggregate sample into stacked series per category per day
-const buildSeries = (rows, categories, visible) => {
-  // get days range
-  const days = Array.from(new Set(rows.map((r) => r.date))).sort();
+const buildSeries = (rows, categories, visible, dayRange = "month") => {
+  let days = [];
+
+  if (dayRange === "year") {
+    const start = moment().startOf("year");
+    const end = moment().endOf("year");
+    for (let m = start; m.isBefore(end); m.add(1, "days")) {
+      days.push(m.format("YYYY-MM-DD"));
+    }
+  } else if (dayRange === "month") {
+    const start = moment().startOf("month");
+    const end = moment().endOf("month");
+    for (let m = start; m.isBefore(end); m.add(1, "days")) {
+      days.push(m.format("YYYY-MM-DD"));
+    }
+  } else if (dayRange === "week") {
+    const start = moment().startOf("week");
+    const end = moment().endOf("week");
+    for (let m = start; m.isBefore(end); m.add(1, "days")) {
+      days.push(m.format("YYYY-MM-DD"));
+    }
+  }
 
   const mapByDay = days.map((d) => {
     const row = { date: d };
@@ -39,8 +58,18 @@ const buildSeries = (rows, categories, visible) => {
   const dayIndex = Object.fromEntries(days.map((d, i) => [d, i]));
 
   for (const r of rows) {
-    if (!visible[r.category]) continue;
+    // Skip if category is not visible
+    if (!visible[r.category]) {
+      continue;
+    }
+
     const idx = dayIndex[r.date];
+
+    // Skip if the date is not within the current range
+    if (idx === undefined) {
+      continue;
+    }
+
     mapByDay[idx][r.category] += parseFloat(r.amount);
   }
 
@@ -56,10 +85,21 @@ const ExpensesAnalysis = ({
     Object.fromEntries(categories.map((c) => [c.name, true])),
   );
 
+  // just expenses
   const data = useMemo(
-    () => buildSeries(transactions, categories, visibleCats),
+    () =>
+      buildSeries(
+        transactions.filter((t) => t.amount > 0),
+        categories,
+        visibleCats,
+      ),
     [visibleCats, categories, transactions],
   );
+
+  useEffect(() => {
+    // reset visibility when categories change
+    setVisibleCats(Object.fromEntries(categories.map((c) => [c.name, true])));
+  }, [categories]);
 
   const toggleCat = (k) =>
     setVisibleCats((prev) => ({ ...prev, [k]: !prev[k] }));
@@ -123,13 +163,21 @@ const ExpensesAnalysis = ({
               stroke="var(--color-muted)"
             />
             <Tooltip
-              contentStyle={{
-                background: "var(--color-bg)",
-                border: `1px solid var(--color-border)`,
-                color: "var(--color-fg)",
+              content={({ active, payload, label }) => {
+                if (!active || !payload || payload.length === 0) return null;
+
+                const items = payload.filter((p) => p && Number(p.value) > 0);
+                if (items.length === 0) return null;
+
+                return (
+                  <ChartTooltip
+                    label={label}
+                    items={items}
+                    formatDate={formatDate}
+                    formatCurrency={formatCurrency}
+                  />
+                );
               }}
-              formatter={(value, name) => [formatCurrency(value), name]}
-              labelFormatter={(l) => formatDate(l)}
             />
             {categories.map((c) => (
               <Area
