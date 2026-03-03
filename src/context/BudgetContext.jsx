@@ -1,5 +1,6 @@
 // BudgetProvider component (context separated for fast refresh)
 import React, { useMemo, useState } from "react";
+import PropTypes from "prop-types";
 import {
   budgets as initialBudgets,
   spentMTD as initialSpent,
@@ -101,3 +102,7 @@ export function BudgetProvider({ children }) {
     <BudgetContext.Provider value={value}>{children}</BudgetContext.Provider>
   );
 }
+
+BudgetProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import CustomSelect from "../components/CustomSelect";
 import NavBar from "../components/NavBar";
+
 const BaseLayout = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -22,6 +24,10 @@ const BaseLayout = ({ children }) => {
       </main>
     </div>
   );
+};
+
+BaseLayout.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export default BaseLayout;

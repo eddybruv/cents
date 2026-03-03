@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import {
   budgets,
   spentMTD,
@@ -22,6 +23,12 @@ function KPI({ title, value, sub }) {
     </div>
   );
 }
+
+KPI.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  sub: PropTypes.node,
+};
 
 const BudgetHeader = () => {
   const totalBudget = budgets.reduce((s, b) => s + (b.budget || 0), 0);

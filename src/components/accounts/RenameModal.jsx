@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 const RenameModal = ({ currentName, onSave, onClose }) => {
   return (
@@ -39,6 +40,12 @@ const RenameModal = ({ currentName, onSave, onClose }) => {
       </div>
     </div>
   );
+};
+
+RenameModal.propTypes = {
+  currentName: PropTypes.string.isRequired,
+  onSave: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 export default RenameModal;

@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMoneyCheckAlt,
@@ -70,6 +71,20 @@ const AccountRow = ({ account, institutionId, onDelete, onRename }) => {
       </div>
     </div>
   );
+};
+
+AccountRow.propTypes = {
+  account: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    mask: PropTypes.string,
+    subtype: PropTypes.string,
+    type: PropTypes.string,
+    balanceCurrent: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  }).isRequired,
+  institutionId: PropTypes.string.isRequired,
+  onDelete: PropTypes.func,
+  onRename: PropTypes.func,
 };
 
 export default AccountRow;

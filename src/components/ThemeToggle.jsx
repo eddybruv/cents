@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSun, faMoon } from "@fortawesome/free-solid-svg-icons";
 import { useThemeContext } from "../hooks/useThemeContext";
@@ -19,6 +20,10 @@ const ThemeToggle = ({ className = "" }) => {
       </span>
     </button>
   );
+};
+
+ThemeToggle.propTypes = {
+  className: PropTypes.string,
 };
 
 export default ThemeToggle;

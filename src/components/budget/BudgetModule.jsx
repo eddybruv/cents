@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { useBudget } from "../../hooks/useBudget";
 import Sparkline from "./Sparkline";
 
@@ -111,6 +112,10 @@ const BudgetModule = ({ categoryKey }) => {
       )}
     </div>
   );
+};
+
+BudgetModule.propTypes = {
+  categoryKey: PropTypes.string.isRequired,
 };
 
 export default BudgetModule;

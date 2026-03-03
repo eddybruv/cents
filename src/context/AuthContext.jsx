@@ -1,5 +1,6 @@
 // contexts/AuthContext.js
 import React, { createContext, useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { supabase } from "../supabase";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSessionStorage } from "usehooks-ts";
@@ -138,6 +139,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export default AuthContext;

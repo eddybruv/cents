@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 // Generic chart tooltip component. Accepts formatting functions as props so
 // the parent can control locale/currency formatting.
@@ -32,3 +33,16 @@ export default function ChartTooltip({ label, items = [], formatDate, formatCurr
     </div>
   );
 }
+
+ChartTooltip.propTypes = {
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      value: PropTypes.number.isRequired,
+      color: PropTypes.string,
+    })
+  ),
+  formatDate: PropTypes.func,
+  formatCurrency: PropTypes.func,
+};

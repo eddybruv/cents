@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCheckCircle,
@@ -129,6 +130,13 @@ const Toast = ({ message, type = "info", duration = 3000, onClose }) => {
       `}</style>
     </div>
   );
+};
+
+Toast.propTypes = {
+  message: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(["success", "error", "warning", "info"]),
+  duration: PropTypes.number,
+  onClose: PropTypes.func,
 };
 
 export default Toast;

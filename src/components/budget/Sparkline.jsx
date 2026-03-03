@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 const Sparkline = ({ points, color }) => {
   if (!points.length) return <div className="h-10" />;
@@ -17,6 +18,16 @@ const Sparkline = ({ points, color }) => {
       <path d={path} fill="none" stroke={color} strokeWidth="2" />
     </svg>
   );
+};
+
+Sparkline.propTypes = {
+  points: PropTypes.arrayOf(
+    PropTypes.shape({
+      date: PropTypes.string,
+      total: PropTypes.number.isRequired,
+    })
+  ).isRequired,
+  color: PropTypes.string.isRequired,
 };
 
 export default Sparkline;

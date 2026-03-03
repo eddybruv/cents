@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import moment from "moment";
 import { createTransaction } from "../../data/transactionsSample";
 
@@ -107,6 +108,12 @@ const NewTransactionModal = ({ open, onClose, onSave }) => {
       </form>
     </div>
   );
+};
+
+NewTransactionModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func,
+  onSave: PropTypes.func,
 };
 
 export default NewTransactionModal;

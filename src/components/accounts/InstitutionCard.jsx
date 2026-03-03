@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faTrash } from "@fortawesome/free-solid-svg-icons";
 import AccountRow from "./AccountRow";
@@ -85,6 +86,24 @@ const InstitutionCard = ({
       )}
     </div>
   );
+};
+
+InstitutionCard.propTypes = {
+  institution: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    logo: PropTypes.string,
+  }).isRequired,
+  onDeleteInstitution: PropTypes.func,
+  onDeleteAccount: PropTypes.func,
+  onRenameAccount: PropTypes.func,
+  accounts: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      balanceCurrent: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    })
+  ).isRequired,
 };
 
 export default InstitutionCard;

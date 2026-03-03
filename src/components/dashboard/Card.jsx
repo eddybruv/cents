@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown, faCaretUp } from "@fortawesome/free-solid-svg-icons";
 import Decimal from "decimal.js";
@@ -13,6 +14,11 @@ const CardBackground = ({ className = "", children }) => {
       <div className="absolute inset-0 glass rounded-sm">{children}</div>
     </div>
   );
+};
+
+CardBackground.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node,
 };
 
 export const Card = ({
@@ -44,4 +50,11 @@ export const Card = ({
       </div>
     </CardBackground>
   );
+};
+
+Card.propTypes = {
+  title: PropTypes.string,
+  value: PropTypes.number,
+  percent: PropTypes.number,
+  className: PropTypes.string,
 };

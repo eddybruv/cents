@@ -5,6 +5,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
+import PropTypes from "prop-types";
 import masterCardLogo from "../../assets/mastercard-logo.png";
 import ccChip from "../../assets/cc-chip.png";
 import { useAuth } from "../../hooks/useAuthContext";
@@ -18,6 +19,11 @@ const CardBackground = ({ className = "", children }) => {
       <div className="absolute inset-0 glass rounded-sm">{children}</div>
     </div>
   );
+};
+
+CardBackground.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node,
 };
 
 export const CardSummary = ({ className = "" }) => {
@@ -122,4 +128,8 @@ export const CardSummary = ({ className = "" }) => {
       </div>
     </CardBackground>
   );
+};
+
+CardSummary.propTypes = {
+  className: PropTypes.string,
 };
