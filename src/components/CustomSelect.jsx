@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import PropTypes from "prop-types";
 
 const CustomSelect = ({
   value = "Total Balance- $6,45,256",
@@ -86,6 +87,13 @@ const CustomSelect = ({
       )}
     </div>
   );
+};
+
+CustomSelect.propTypes = {
+  value: PropTypes.string,
+  options: PropTypes.arrayOf(PropTypes.string),
+  onChange: PropTypes.func,
+  className: PropTypes.string,
 };
 
 export default CustomSelect;
