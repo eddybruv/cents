@@ -1,4 +1,5 @@
 import React, { useCallback } from "react";
+import PropTypes from "prop-types";
 import { usePlaidLink } from "react-plaid-link";
 import API from "../api/API";
 import { useAuth } from "../hooks/useAuthContext";
@@ -56,4 +57,10 @@ const PlaidLinkButton = ({
     </button>
   );
 };
+
+PlaidLinkButton.propTypes = {
+  text: PropTypes.string,
+  className: PropTypes.string,
+};
+
 export default PlaidLinkButton;
