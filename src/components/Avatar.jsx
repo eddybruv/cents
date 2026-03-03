@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 const Avatar = ({ src, alt = "Avatar", name, size = "md", className = "" }) => {
   const [imageError, setImageError] = React.useState(false);
@@ -48,6 +49,14 @@ const Avatar = ({ src, alt = "Avatar", name, size = "md", className = "" }) => {
       )}
     </>
   );
+};
+
+Avatar.propTypes = {
+  src: PropTypes.string,
+  alt: PropTypes.string,
+  name: PropTypes.string,
+  size: PropTypes.oneOf(["sm", "md", "lg", "xl"]),
+  className: PropTypes.string,
 };
 
 export default Avatar;
