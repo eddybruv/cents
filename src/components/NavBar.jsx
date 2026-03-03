@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import logo from "../assets/logo.png";
 import { useLocation, Link } from "react-router-dom";
 import SettingsDropdown from "./SettingsDropdown";
@@ -154,6 +155,11 @@ const NavBar = ({ toggleMobileMenu, isMobileMenuOpen }) => {
       )}
     </nav>
   );
+};
+
+NavBar.propTypes = {
+  toggleMobileMenu: PropTypes.func.isRequired,
+  isMobileMenuOpen: PropTypes.bool.isRequired,
 };
 
 export default NavBar;
