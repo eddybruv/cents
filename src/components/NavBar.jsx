@@ -35,12 +35,12 @@ const NavBar = ({ toggleMobileMenu, isMobileMenuOpen }) => {
               >
                 Transactions
               </Link>
-              <Link
+              {/* <Link
                 to="/budget"
                 className={`px-3 py-2 text-sm font-medium transition-colors duration-200 ${pathname.startsWith("/budget") ? "text-(--color-fg)" : "text-(--color-muted) hover:text-(--color-accent)"}`}
               >
                 Budget
-              </Link>
+              </Link> */}
               <Link
                 to="/accounts"
                 className={`px-3 py-2 text-sm font-medium transition-colors duration-200 ${pathname.startsWith("/accounts") ? "text-(--color-fg)" : "text-(--color-muted) hover:text-(--color-accent)"}`}
@@ -111,12 +111,12 @@ const NavBar = ({ toggleMobileMenu, isMobileMenuOpen }) => {
             >
               Transactions
             </Link>
-            <Link
+            {/* <Link
               to="/budget"
               className={`block px-3 py-2 text-base font-medium rounded-md transition-colors duration-200 ${pathname.startsWith("/budget") ? "text-(--color-fg)" : "text-(--color-muted) hover:bg-(--color-surface)"}`}
             >
               Budget
-            </Link>
+            </Link> */}
             <Link
               to="/accounts"
               className={`block px-3 py-2 text-base font-medium rounded-md transition-colors duration-200 ${pathname.startsWith("/accounts") ? "text-(--color-fg)" : "text-(--color-muted) hover:bg-(--color-surface)"}`}
