@@ -9,7 +9,9 @@ import {
   createColumnHelper,
 } from "@tanstack/react-table";
 import moment from "moment";
-import { transactions } from "../../data/transactionsSample";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPencilAlt } from "@fortawesome/free-solid-svg-icons";
+import EditTransactionModal from "./EditTransactionModal";
 
 const columnHelper = createColumnHelper();
 
@@ -18,9 +20,16 @@ const currency = (n) =>
     n,
   );
 
-const TransactionsTable = ({ data = transactions }) => {
+const numericSort = (rowA, rowB, columnId) => {
+  const a = parseFloat(rowA.getValue(columnId) ?? 0);
+  const b = parseFloat(rowB.getValue(columnId) ?? 0);
+  return a - b;
+};
+
+const TransactionsTable = ({ data = [] }) => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]);
+  const [editingTransaction, setEditingTransaction] = useState(null);
 
   const columns = React.useMemo(
     () => [
@@ -35,16 +44,21 @@ const TransactionsTable = ({ data = transactions }) => {
           header: "Merchant",
           id: "merchantName",
           cell: (info) => (
-            <span className="truncate max-w-[140px] inline-block">
-              {info.getValue()}
-            </span>
+            <div className="flex flex-col max-w-[160px]">
+              <span className="truncate">{info.getValue()}</span>
+              {info.row.original.userDescription && (
+                <span className="text-xs text-(--color-muted) truncate italic">
+                  {info.row.original.userDescription}
+                </span>
+              )}
+            </div>
           ),
         },
       ),
       columnHelper.accessor("category", {
         header: "Category",
       }),
-      columnHelper.accessor("account", {
+      columnHelper.accessor("accountName", {
         header: "Account",
       }),
       columnHelper.accessor("amount", {
@@ -56,7 +70,20 @@ const TransactionsTable = ({ data = transactions }) => {
             {currency(info.getValue())}
           </span>
         ),
-        sortingFn: "basic",
+        sortingFn: numericSort,
+      }),
+      columnHelper.display({
+        id: "actions",
+        header: "",
+        cell: ({ row }) => (
+          <button
+            onClick={() => setEditingTransaction(row.original)}
+            className="p-1.5 rounded-md text-(--color-muted) hover:text-(--color-fg) hover:bg-(--color-surface) transition"
+            aria-label="Edit transaction"
+          >
+            <FontAwesomeIcon icon={faPencilAlt} className="w-3 h-3" />
+          </button>
+        ),
       }),
     ],
     [],
@@ -175,6 +202,12 @@ const TransactionsTable = ({ data = transactions }) => {
           </select>
         </div>
       </div>
+      {editingTransaction && (
+        <EditTransactionModal
+          transaction={editingTransaction}
+          onClose={() => setEditingTransaction(null)}
+        />
+      )}
     </div>
   );
 };

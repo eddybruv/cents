@@ -20,6 +20,7 @@ export const transactions = pgTable("transactions", {
   name: text("name").notNull(),
   amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
   date: date("date").notNull(),
+  userDescription: text("user_description"),
   categoryId: integer("category_id").references(() => categories.id),
   merchantName: text("merchant_name"),
   paymentChannel: text("payment_channel"),

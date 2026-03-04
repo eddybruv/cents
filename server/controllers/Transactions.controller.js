@@ -57,6 +57,8 @@ export const GetTransactions = async (req, res) => {
         merchantName: transactions.merchantName,
         paymentChannel: transactions.paymentChannel,
         pending: transactions.pending,
+        userDescription: transactions.userDescription,
+        categoryId: transactions.categoryId,
         category: categories.name,
         institutionName: institutions.name,
         accountName: accounts.name,
@@ -72,6 +74,46 @@ export const GetTransactions = async (req, res) => {
   } catch (error) {
     console.error("❌ GetTransactions:", error);
     res.status(500).json({ error: "Failed to retrieve transactions" });
+  }
+};
+
+export const UpdateTransaction = async (req, res) => {
+  const { id } = req.params;
+  const { userDescription, categoryId } = req.body;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    // Verify the transaction belongs to the user
+    const existing = await db
+      .select({ id: transactions.id })
+      .from(transactions)
+      .innerJoin(accounts, eq(accounts.plaidAccountId, transactions.accountId))
+      .innerJoin(institutions, eq(institutions.id, accounts.institutionId))
+      .where(eq(transactions.id, id))
+      .where(eq(institutions.userId, userId));
+
+    if (!existing.length) {
+      return res.status(404).json({ error: "Transaction not found" });
+    }
+
+    const patch = {};
+    if (userDescription !== undefined) patch.userDescription = userDescription;
+    if (categoryId !== undefined) patch.categoryId = Number(categoryId);
+
+    const [updated] = await db
+      .update(transactions)
+      .set(patch)
+      .where(eq(transactions.id, id))
+      .returning();
+
+    res.json(updated);
+  } catch (error) {
+    console.error("❌ UpdateTransaction:", error);
+    res.status(500).json({ error: "Failed to update transaction" });
   }
 };
 
