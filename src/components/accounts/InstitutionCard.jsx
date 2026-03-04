@@ -1,10 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronDown,
+  faTrash,
+  faRotate,
+} from "@fortawesome/free-solid-svg-icons";
 import AccountRow from "./AccountRow";
 import Avatar from "../Avatar";
 import { formatCurrency } from "../../lib/formatCurrency";
+import API from "../../api/API";
+import { useQueryClient } from "@tanstack/react-query";
 
 const InstitutionCard = ({
   institution,
@@ -14,8 +20,26 @@ const InstitutionCard = ({
   accounts,
 }) => {
   const [expanded, setExpanded] = React.useState(true);
+  const [syncing, setSyncing] = React.useState(false);
+  const [syncError, setSyncError] = React.useState(null);
+  const queryClient = useQueryClient();
 
-  console.log(accounts);
+  const handleSync = async () => {
+    setSyncing(true);
+    setSyncError(null);
+    try {
+      await API.post("/api/plaid/sync-transactions", {
+        institutionId: institution.id,
+      });
+      await queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      await queryClient.invalidateQueries({ queryKey: ["accounts"] });
+    } catch (err) {
+      setSyncError(err?.response?.data?.error || "Sync failed");
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const totalBalance = accounts.reduce(
     (sum, acc) => sum + parseFloat(acc.balanceCurrent || 0),
     0,
@@ -48,6 +72,20 @@ const InstitutionCard = ({
               </p>
             </div>
             <button
+              onClick={handleSync}
+              disabled={syncing}
+              className="p-2 hover:bg-(--color-surface) rounded-md transition text-(--color-muted) hover:text-(--color-fg) disabled:opacity-50"
+              aria-label="Sync transactions"
+              title="Sync transactions"
+            >
+              <FontAwesomeIcon
+                icon={faRotate}
+                className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                  syncing ? "animate-spin" : ""
+                }`}
+              />
+            </button>
+            <button
               onClick={() => setExpanded(!expanded)}
               className="p-2 hover:bg-(--color-surface) rounded-md transition"
               aria-label={expanded ? "Collapse" : "Expand"}
@@ -71,6 +109,13 @@ const InstitutionCard = ({
         </div>
       </div>
 
+      {/* Sync Error */}
+      {syncError && (
+        <div className="px-4 py-2 bg-red-500/10 border-t border-(--color-border) text-red-400 text-sm">
+          {syncError}
+        </div>
+      )}
+
       {/* Accounts List */}
       {expanded && (
         <div className="divide-y divide-(--color-border)">
@@ -79,7 +124,6 @@ const InstitutionCard = ({
               key={account.id}
               account={account}
               institutionId={institution.id}
-              
             />
           ))}
         </div>
@@ -102,7 +146,7 @@ InstitutionCard.propTypes = {
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
       balanceCurrent: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    })
+    }),
   ).isRequired,
 };
 

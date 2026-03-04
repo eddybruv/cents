@@ -72,6 +72,35 @@ export const ExchangePublicToken = async (req, res) => {
   }
 };
 
+export const SyncInstitutionTransactions = async (req, res) => {
+  const { institutionId } = req.body;
+  if (
+    !institutionId ||
+    typeof institutionId !== "string" ||
+    !institutionId.trim()
+  ) {
+    return res.status(400).json({ error: "Invalid or missing institutionId" });
+  }
+  try {
+    const rows = await db
+      .select({ accessToken: institutions.accessToken })
+      .from(institutions)
+      .where(eq(institutions.id, institutionId));
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "Institution not found" });
+    }
+
+    await SyncTransactions(rows[0].accessToken, institutionId);
+    res.json({ success: true });
+  } catch (error) {
+    const status = error?.response?.status || 500;
+    const message = error?.response?.data || { error: "Sync error" };
+    console.error("❌ SyncInstitutionTransactions:", message);
+    res.status(status).json(message);
+  }
+};
+
 const SyncInstitutions = async (accessToken, userId) => {
   try {
     const {
