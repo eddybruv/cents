@@ -14,4 +14,19 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+API.interceptors.response.use(
+  (response) => {
+    // pass through successful responses
+    return response;
+  },
+  (error) => {
+    // handle responses with error status codes (e.g., 401)
+    if (error.response && error.response.status === 401) {
+      // handle unauthorized access, e.g., redirect to login
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default API;
