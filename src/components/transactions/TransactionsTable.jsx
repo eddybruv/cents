@@ -12,6 +12,7 @@ import moment from "moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPencilAlt } from "@fortawesome/free-solid-svg-icons";
 import EditTransactionModal from "./EditTransactionModal";
+import Select from "../Select";
 
 const columnHelper = createColumnHelper();
 
@@ -189,17 +190,12 @@ const TransactionsTable = ({ data = [] }) => {
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount()}
           </span>
-          <select
+          <Select
             value={table.getState().pagination.pageSize}
-            onChange={(e) => table.setPageSize(Number(e.target.value))}
-            className="px-2 py-1 rounded-md bg-(--color-surface) border border-(--color-border)"
-          >
-            {[8, 15, 30].map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => table.setPageSize(Number(value))}
+            options={[8, 15, 30]}
+            className="w-20"
+          />
         </div>
       </div>
       {editingTransaction && (

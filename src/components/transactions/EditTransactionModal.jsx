@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCategories } from "../../hooks/useCategories";
 import API from "../../api/API";
+import Select from "../Select";
 
 const EditTransactionModal = ({ transaction, onClose }) => {
   const queryClient = useQueryClient();
@@ -60,17 +61,15 @@ const EditTransactionModal = ({ transaction, onClose }) => {
 
         <label className="flex flex-col gap-1 text-xs">
           <span className="text-(--color-muted)">Category</span>
-          <select
+          <Select
             value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="px-2 py-2 rounded-md bg-(--color-surface) border border-(--color-border) focus:outline-none focus:border-(--color-accent)"
-          >
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => setCategoryId(value)}
+            options={categories.map((cat) => ({
+              label: cat.name,
+              value: cat.id,
+            }))}
+            placeholder="Select a category"
+          />
         </label>
 
         <label className="flex flex-col gap-1 text-xs">

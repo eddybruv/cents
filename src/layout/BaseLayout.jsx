@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import CustomSelect from "../components/CustomSelect";
 import NavBar from "../components/NavBar";
 
 const BaseLayout = ({ children }) => {
