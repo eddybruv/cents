@@ -23,7 +23,6 @@ const formatCurrency = (n) =>
 
 const formatDate = (iso) => moment(iso).format("MMM D");
 
-// Aggregate sample into stacked series per category per day
 const buildSeries = (rows, categories, visible, dayRange = "month") => {
   let days = [];
 
@@ -58,18 +57,9 @@ const buildSeries = (rows, categories, visible, dayRange = "month") => {
   const dayIndex = Object.fromEntries(days.map((d, i) => [d, i]));
 
   for (const r of rows) {
-    // Skip if category is not visible
-    if (!visible[r.category]) {
-      continue;
-    }
-
+    if (!visible[r.category]) continue;
     const idx = dayIndex[r.date];
-
-    // Skip if the date is not within the current range
-    if (idx === undefined) {
-      continue;
-    }
-
+    if (idx === undefined) continue;
     mapByDay[idx][r.category] += parseFloat(r.amount);
   }
 
@@ -85,7 +75,6 @@ const ExpensesAnalysis = ({
     Object.fromEntries(categories.map((c) => [c.name, true])),
   );
 
-  // just expenses
   const data = useMemo(
     () =>
       buildSeries(
@@ -97,7 +86,6 @@ const ExpensesAnalysis = ({
   );
 
   useEffect(() => {
-    // reset visibility when categories change
     setVisibleCats(Object.fromEntries(categories.map((c) => [c.name, true])));
   }, [categories]);
 
@@ -106,23 +94,23 @@ const ExpensesAnalysis = ({
 
   return (
     <div
-      className={` glass rounded-sm border border-(--color-border) p-4 flex flex-col ${className}`}
+      className={`card rounded-xl p-5 flex flex-col ${className}`}
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-start justify-between mb-5 gap-4 flex-wrap">
         <div>
-          <h3 className="text-xl font-semibold">Spending overview</h3>
-          <p className="text-(--color-muted) text-sm">Month to date</p>
+          <h3 className="text-lg font-semibold tracking-tight">Spending overview</h3>
+          <p className="text-(--color-muted) text-xs mt-0.5">Month to date</p>
         </div>
-        <div className="flex gap-2 flex-wrap justify-end">
+        <div className="flex gap-1.5 flex-wrap justify-end">
           {categories.map((c) => (
             <button
               key={c.name}
               onClick={() => toggleCat(c.name)}
-              className="px-2 py-1 rounded-md border hover:cursor-pointer text-xs"
+              className="px-2.5 py-1 rounded-lg text-[11px] font-medium hover:cursor-pointer transition-all duration-200"
               style={{
                 background: visibleCats[c.name] ? c.color : "transparent",
-                borderColor: "var(--color-border)",
-                color: visibleCats[c.name] ? "#0b0b0c" : "var(--color-fg)",
+                border: `1px solid ${visibleCats[c.name] ? c.color : "var(--color-border-strong)"}`,
+                color: visibleCats[c.name] ? "#09090b" : "var(--color-muted)",
               }}
             >
               {c.name}
@@ -147,28 +135,36 @@ const ExpensesAnalysis = ({
                   x2="0"
                   y2="1"
                 >
-                  <stop offset="5%" stopColor={c.color} stopOpacity={0.7} />
-                  <stop offset="95%" stopColor={c.color} stopOpacity={0.05} />
+                  <stop offset="5%" stopColor={c.color} stopOpacity={0.6} />
+                  <stop offset="95%" stopColor={c.color} stopOpacity={0.02} />
                 </linearGradient>
               ))}
             </defs>
-            <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" />
+            <CartesianGrid
+              stroke="var(--color-border)"
+              strokeDasharray="3 3"
+              vertical={false}
+            />
             <XAxis
               dataKey="date"
               tickFormatter={formatDate}
               stroke="var(--color-muted)"
+              tick={{ fontSize: 11 }}
+              axisLine={{ stroke: "var(--color-border)" }}
+              tickLine={false}
             />
             <YAxis
               tickFormatter={(v) => (v >= 1000 ? `${v / 1000}k` : v)}
               stroke="var(--color-muted)"
+              tick={{ fontSize: 11 }}
+              axisLine={false}
+              tickLine={false}
             />
             <Tooltip
               content={({ active, payload, label }) => {
                 if (!active || !payload || payload.length === 0) return null;
-
                 const items = payload.filter((p) => p && Number(p.value) > 0);
                 if (items.length === 0) return null;
-
                 return (
                   <ChartTooltip
                     label={label}
@@ -187,32 +183,42 @@ const ExpensesAnalysis = ({
                 stackId="1"
                 stroke={c.color}
                 fill={`url(#grad-${c.name})`}
-                strokeWidth={2}
+                strokeWidth={1.5}
                 hide={!visibleCats[c.name]}
                 isAnimationActive={true}
               />
             ))}
             <Brush
               dataKey="date"
-              height={16}
-              stroke="var(--color-border)"
+              height={14}
+              stroke="var(--color-border-strong)"
               travellerWidth={6}
+              fill="var(--color-surface)"
             />
             <Legend />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
         {categories.slice(0, 4).map((c) => {
           const sum = data.reduce((s, d) => s + (d[c.name] || 0), 0);
           return (
             <div
               key={c.name}
-              className="rounded-md border border-(--color-border) p-3"
+              className="rounded-lg p-3 transition-colors hover:bg-(--color-surface-elevated)"
+              style={{ border: "1px solid var(--color-border)" }}
             >
-              <p className="text-xs text-(--color-muted)">{c.name}</p>
-              <p className="text-lg font-semibold">{formatCurrency(sum)}</p>
+              <div className="flex items-center gap-1.5 mb-1">
+                <span
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{ background: c.color }}
+                />
+                <p className="text-[11px] text-(--color-muted)">{c.name}</p>
+              </div>
+              <p className="text-base font-semibold tabular-nums tracking-tight">
+                {formatCurrency(sum)}
+              </p>
             </div>
           );
         })}

@@ -10,9 +10,9 @@ const currency = (n) =>
 
 const CategoryBudgets = () => {
   return (
-    <section className="glass rounded-md border border-(--color-border) p-4">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-base font-semibold">Category budgets</h3>
+    <section className="animate-in stagger-5 card p-5 rounded-xl">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-base font-semibold tracking-tight">Category budgets</h3>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -22,40 +22,48 @@ const CategoryBudgets = () => {
             ? Math.min(100, Math.round((spent / b.budget) * 100))
             : 0;
           const over = spent > b.budget;
+          const color = categoryColors[b.key] || "var(--color-fg)";
+
           return (
             <div
               key={b.key}
-              className="border border-(--color-border) rounded-md p-3"
+              className="rounded-lg p-3.5 transition-all duration-200 hover:bg-(--color-surface-elevated) group"
+              style={{
+                border: "1px solid var(--color-border)",
+              }}
             >
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-2.5">
                 <div className="flex items-center gap-2">
                   <span
-                    className="inline-block h-2 w-2 rounded-full"
-                    style={{
-                      background: categoryColors[b.key] || "var(--color-fg)",
-                    }}
+                    className="inline-block h-2.5 w-2.5 rounded-full transition-transform duration-200 group-hover:scale-125"
+                    style={{ background: color }}
                   />
                   <p className="text-sm font-medium">{b.name}</p>
                 </div>
                 <p
-                  className={`text-xs ${over ? "text-red-500" : "text-(--color-muted)"}`}
+                  className={`text-xs tabular-nums ${over ? "text-red-400 font-medium" : "text-(--color-muted)"}`}
                 >
-                  {currency(spent)} / {currency(b.budget)}
+                  {currency(spent)}{" "}
+                  <span className="text-(--color-muted)">/ {currency(b.budget)}</span>
                 </p>
               </div>
-              <div className="h-2 w-full rounded bg-(--color-surface)">
+              <div className="h-1.5 w-full rounded-full bg-(--color-surface-elevated) overflow-hidden">
                 <div
-                  className="h-2 rounded transition-all"
+                  className="h-full rounded-full transition-all duration-500 ease-out"
                   style={{
                     width: `${pct}%`,
                     background: over
-                      ? "linear-gradient(90deg,#ef4444,#f59e0b)"
-                      : categoryColors[b.key],
+                      ? "linear-gradient(90deg, #f87171, #fbbf24)"
+                      : color,
                   }}
                 />
               </div>
-              <div className="mt-1 text-[11px] text-(--color-muted)">
-                {over ? "Over budget" : `${100 - pct}% remaining`}
+              <div className="mt-1.5 text-[11px] text-(--color-muted)">
+                {over ? (
+                  <span className="text-red-400">Over budget</span>
+                ) : (
+                  `${100 - pct}% remaining`
+                )}
               </div>
             </div>
           );
