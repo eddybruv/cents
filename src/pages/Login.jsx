@@ -1,4 +1,3 @@
-// components/Login.js
 import React from "react";
 import { useAuth } from "../hooks/useAuthContext";
 import logo from "../assets/logo.png";
@@ -17,24 +16,32 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-(--color-bg) px-4">
-      <div className="w-full max-w-md">
-        <div className="mb-6 flex items-center justify-between">
-          <Link to="/" className="text-(--color-muted) hover:text-(--color-fg)">
-            ← Back to home
+    <div className="min-h-screen flex items-center justify-center bg-(--color-bg) mesh-bg px-4">
+      <div className="w-full max-w-sm animate-in">
+        <div className="mb-8 flex items-center justify-between">
+          <Link
+            to="/"
+            className="text-(--color-muted) hover:text-(--color-fg) text-sm transition-colors"
+          >
+            &larr; Back
           </Link>
-          <img src={logo} alt="Vault" className="h-6 w-auto" />
+          <img src={logo} alt="cents" className="h-5 w-auto" />
         </div>
 
-        <div className="glass border border-(--color-border) rounded-xl p-6 sm:p-8">
-          <h1 className="text-2xl font-bold mb-2">Welcome back</h1>
-          <p className="text-(--color-muted) mb-6">
+        <div className="card gradient-border p-8">
+          <h1 className="text-2xl font-bold tracking-tight mb-1">Welcome back</h1>
+          <p className="text-(--color-muted) text-sm mb-8">
             Sign in to access your dashboard.
           </p>
 
           <button
             onClick={handleGoogleSignIn}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-md bg-blue-500 text-white font-medium hover:bg-blue-600 cursor-pointer transition"
+            className="w-full inline-flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl font-medium text-sm cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+            style={{
+              background: "var(--color-surface-elevated)",
+              border: "1px solid var(--color-border-strong)",
+              color: "var(--color-fg)",
+            }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -62,17 +69,17 @@ const Login = () => {
             Continue with Google
           </button>
 
-          <div className="mt-6 border-t border-(--color-border) pt-6">
-            <p className="text-xs text-(--color-muted)">
+          <div className="mt-8 border-t border-(--color-border) pt-6">
+            <p className="text-[11px] text-(--color-muted) leading-relaxed">
               By continuing, you agree to our Terms and acknowledge our Privacy
               Policy.
             </p>
           </div>
         </div>
 
-        <p className="text-center text-(--color-muted) text-sm mt-6">
-          Don’t have access yet?{" "}
-          <span className="text-(--color-fg)">Ask your administrator.</span>
+        <p className="text-center text-(--color-muted) text-sm mt-8">
+          Don&apos;t have access yet?{" "}
+          <span className="text-(--color-fg) font-medium">Ask your administrator.</span>
         </p>
       </div>
     </div>
