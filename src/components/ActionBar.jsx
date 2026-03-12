@@ -7,7 +7,6 @@ import Avatar from "./Avatar";
 const ActionBar = ({ page }) => {
   const { user } = useAuth();
 
-  // Get first name from full name or use email prefix
   const getFirstName = () => {
     if (user?.fullName) {
       return user.fullName.split(" ")[0];
@@ -18,7 +17,6 @@ const ActionBar = ({ page }) => {
     return "User";
   };
 
-  // Get time-based greeting
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good morning";
@@ -27,34 +25,31 @@ const ActionBar = ({ page }) => {
   };
 
   return (
-    <div className="flex w-full justify-between items-center mb-4 flex-wrap gap-3">
-      <div className="flex w-fit items-center gap-2">
+    <div className="animate-in flex w-full justify-between items-center mb-6 flex-wrap gap-3">
+      <div className="flex w-fit items-center gap-3">
         <Avatar
           src={user?.avatarUrl}
           name={user?.fullName || user?.email || "User"}
           size="md"
           alt="Profile"
         />
-        {/* greeting / user name */}
         <div className="flex flex-col">
-          <span className="text-(--color-muted) text-xs font-extralight">
-            {getGreeting()}
-          </span>
-          <span className="text-(--color-fg) text-md font-semibold">
+          <span className="text-(--color-muted) text-xs">{getGreeting()}</span>
+          <span className="text-(--color-fg) text-base font-semibold tracking-tight">
             {getFirstName()}
           </span>
         </div>
       </div>
 
-      <div className="flex gap-2 sm:gap-3">
+      <div className="flex gap-2">
         {page === "dashboard" && (
           <button className="btn-secondary">
-            <FontAwesomeIcon icon={faLink} />
+            <FontAwesomeIcon icon={faLink} className="text-xs" />
             <span className="hidden sm:inline truncate">Link Account</span>
           </button>
         )}
         <button className="btn-secondary">
-          <FontAwesomeIcon icon={faPlus} />
+          <FontAwesomeIcon icon={faPlus} className="text-xs" />
           <span className="hidden sm:inline truncate">Transaction</span>
         </button>
       </div>

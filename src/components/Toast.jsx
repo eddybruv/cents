@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,20 +13,18 @@ const Toast = ({ message, type = "info", duration = 3000, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
 
-  const handleClose = React.useCallback(() => {
+  const handleClose = useCallback(() => {
     setIsExiting(true);
     setTimeout(() => {
       onClose?.();
-    }, 300); // Match animation duration
+    }, 300);
   }, [onClose]);
 
   useEffect(() => {
-    // Trigger entry animation
     requestAnimationFrame(() => {
       setIsVisible(true);
     });
 
-    // Auto dismiss after duration
     const timer = setTimeout(() => {
       handleClose();
     }, duration);
@@ -37,97 +35,74 @@ const Toast = ({ message, type = "info", duration = 3000, onClose }) => {
   const config = {
     success: {
       icon: faCheckCircle,
-      colorClass: "text-green-500",
-      bgClass: "border-green-500/30",
-      iconBg: "bg-green-500/10",
+      colorClass: "text-emerald-400",
+      borderColor: "rgba(52, 211, 153, 0.2)",
+      barColor: "#34d399",
     },
     error: {
       icon: faExclamationCircle,
-      colorClass: "text-red-500",
-      bgClass: "border-red-500/30",
-      iconBg: "bg-red-500/10",
+      colorClass: "text-red-400",
+      borderColor: "rgba(248, 113, 113, 0.2)",
+      barColor: "#f87171",
     },
     warning: {
       icon: faExclamationTriangle,
-      colorClass: "text-yellow-500",
-      bgClass: "border-yellow-500/30",
-      iconBg: "bg-yellow-500/10",
+      colorClass: "text-amber-400",
+      borderColor: "rgba(251, 191, 36, 0.2)",
+      barColor: "#fbbf24",
     },
     info: {
       icon: faInfoCircle,
-      colorClass: "text-blue-500",
-      bgClass: "border-blue-500/30",
-      iconBg: "bg-blue-500/10",
+      colorClass: "text-blue-400",
+      borderColor: "rgba(96, 165, 250, 0.2)",
+      barColor: "#60a5fa",
     },
   };
 
-  const { icon, colorClass, bgClass, iconBg } = config[type] || config.info;
+  const { icon, colorClass, borderColor, barColor } = config[type] || config.info;
 
   return (
     <div
       className={`
-        glass border ${bgClass} rounded-lg shadow-lg
-        min-w-[280px] max-w-[400px] w-full sm:w-auto
-        pointer-events-auto
+        rounded-xl shadow-lg
+        min-w-[280px] max-w-[380px] w-full sm:w-auto
+        pointer-events-auto overflow-hidden
         transition-all duration-300 ease-out
         ${
           isVisible && !isExiting
-            ? "opacity-100 translate-x-0"
-            : "opacity-0 translate-x-8"
+            ? "opacity-100 translate-x-0 scale-100"
+            : "opacity-0 translate-x-4 scale-95"
         }
       `}
+      style={{
+        background: "var(--color-bg)",
+        border: `1px solid ${borderColor}`,
+        boxShadow: "var(--shadow-elevated)",
+      }}
       role="alert"
       aria-live="polite"
     >
-      <div className="flex items-start gap-3 p-3 sm:p-4">
-        {/* Icon */}
-        <div className={`${iconBg} rounded-lg p-2 flex-shrink-0`}>
-          <FontAwesomeIcon icon={icon} className={`w-4 h-4 ${colorClass}`} />
-        </div>
-
-        {/* Message */}
-        <div className="flex-1 min-w-0 pt-0.5">
-          <p className="text-sm text-(--color-fg) break-words">{message}</p>
-        </div>
-
-        {/* Close button */}
+      <div className="flex items-start gap-3 p-3.5">
+        <FontAwesomeIcon icon={icon} className={`w-4 h-4 mt-0.5 ${colorClass}`} />
+        <p className="flex-1 min-w-0 text-sm text-(--color-fg) leading-relaxed">{message}</p>
         <button
           onClick={handleClose}
-          className="flex-shrink-0 text-(--color-muted) hover:text-(--color-fg) transition-colors p-1 -mr-1"
+          className="flex-shrink-0 text-(--color-muted) hover:text-(--color-fg) transition-colors p-0.5"
           aria-label="Close notification"
         >
           <FontAwesomeIcon icon={faTimes} className="w-3 h-3" />
         </button>
       </div>
 
-      {/* Progress bar */}
-      <div className="h-1 bg-(--color-surface) overflow-hidden rounded-b-lg">
+      <div className="h-0.5 overflow-hidden" style={{ background: "var(--color-surface)" }}>
         <div
-          className={`h-full ${
-            type === "success"
-              ? "bg-green-500"
-              : type === "error"
-                ? "bg-red-500"
-                : type === "warning"
-                  ? "bg-yellow-500"
-                  : "bg-blue-500"
-          }`}
           style={{
+            height: "100%",
+            background: barColor,
             animation: `shrink ${duration}ms linear forwards`,
           }}
         />
       </div>
-
-      <style>{`
-        @keyframes shrink {
-          from {
-            width: 100%;
-          }
-          to {
-            width: 0%;
-          }
-        }
-      `}</style>
     </div>
   );
 };
