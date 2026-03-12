@@ -36,7 +36,11 @@ const TransactionsTable = ({ data = [] }) => {
     () => [
       columnHelper.accessor("date", {
         header: "Date",
-        cell: (info) => moment(info.getValue()).format("MMM D"),
+        cell: (info) => (
+          <span className="text-(--color-muted)">
+            {moment(info.getValue()).format("MMM D")}
+          </span>
+        ),
         sortingFn: "datetime",
       }),
       columnHelper.accessor(
@@ -45,10 +49,10 @@ const TransactionsTable = ({ data = [] }) => {
           header: "Merchant",
           id: "merchantName",
           cell: (info) => (
-            <div className="flex flex-col max-w-[160px]">
-              <span className="truncate">{info.getValue()}</span>
+            <div className="flex flex-col max-w-[200px]">
+              <span className="truncate font-medium">{info.getValue()}</span>
               {info.row.original.userDescription && (
-                <span className="text-xs text-(--color-muted) truncate italic">
+                <span className="text-[11px] text-(--color-muted) truncate italic">
                   {info.row.original.userDescription}
                 </span>
               )}
@@ -58,15 +62,21 @@ const TransactionsTable = ({ data = [] }) => {
       ),
       columnHelper.accessor("category", {
         header: "Category",
+        cell: (info) => (
+          <span className="text-[13px]">{info.getValue()}</span>
+        ),
       }),
       columnHelper.accessor("accountName", {
         header: "Account",
+        cell: (info) => (
+          <span className="text-(--color-muted) text-[13px]">{info.getValue()}</span>
+        ),
       }),
       columnHelper.accessor("amount", {
         header: "Amount",
         cell: (info) => (
           <span
-            className={info.getValue() > 0 ? "text-red-400" : "text-green-400"}
+            className={`font-semibold tabular-nums ${info.getValue() > 0 ? "text-red-400" : "text-emerald-400"}`}
           >
             {currency(info.getValue())}
           </span>
@@ -79,7 +89,7 @@ const TransactionsTable = ({ data = [] }) => {
         cell: ({ row }) => (
           <button
             onClick={() => setEditingTransaction(row.original)}
-            className="p-1.5 rounded-md text-(--color-muted) hover:text-(--color-fg) hover:bg-(--color-surface) transition"
+            className="p-1.5 rounded-lg text-(--color-muted) hover:text-(--color-fg) hover:bg-(--color-surface-elevated) transition-all"
             aria-label="Edit transaction"
           >
             <FontAwesomeIcon icon={faPencilAlt} className="w-3 h-3" />
@@ -105,17 +115,17 @@ const TransactionsTable = ({ data = [] }) => {
   });
 
   return (
-    <div className="glass border border-(--color-border) rounded-md p-3 sm:p-4 flex flex-col h-full">
+    <div className="card rounded-xl p-4 sm:p-5 flex flex-col h-full">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         <input
           value={globalFilter ?? ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
           placeholder="Search transactions..."
-          className="w-full sm:w-64 px-3 py-2 text-xs sm:text-sm rounded-md bg-(--color-surface) border border-(--color-border) focus:outline-none focus:border-(--color-accent)"
+          className="w-full sm:w-64 px-3 py-2 text-sm rounded-lg bg-(--color-surface) border border-(--color-border) focus:outline-none focus:border-(--color-accent) focus:ring-1 focus:ring-(--color-accent-muted) transition-all placeholder:text-(--color-muted)"
         />
       </div>
-      <div className="overflow-x-auto -mx-3 sm:mx-0">
-        <table className="w-full text-xs sm:text-sm border-collapse min-w-[600px]">
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <table className="w-full text-[13px] border-collapse min-w-[600px]">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -123,7 +133,7 @@ const TransactionsTable = ({ data = [] }) => {
                   <th
                     key={header.id}
                     onClick={header.column.getToggleSortingHandler()}
-                    className="text-left font-medium px-2 py-2 cursor-pointer select-none text-(--color-muted)"
+                    className="text-left font-medium px-3 py-2.5 cursor-pointer select-none text-[11px] uppercase tracking-wider text-(--color-muted) border-b border-(--color-border)"
                   >
                     <div className="flex items-center gap-1">
                       <span>
@@ -132,8 +142,8 @@ const TransactionsTable = ({ data = [] }) => {
                           header.getContext(),
                         )}
                       </span>
-                      <span>
-                        {{ asc: "▲", desc: "▼" }[header.column.getIsSorted()] ||
+                      <span className="text-[9px]">
+                        {{ asc: "\u25B2", desc: "\u25BC" }[header.column.getIsSorted()] ||
                           ""}
                       </span>
                     </div>
@@ -144,11 +154,14 @@ const TransactionsTable = ({ data = [] }) => {
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="hover:bg-(--color-surface)">
+              <tr
+                key={row.id}
+                className="hover:bg-(--color-surface-elevated) transition-colors"
+              >
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
-                    className="px-2 py-2 border-t border-(--color-border) align-top"
+                    className="px-3 py-2.5 border-b border-(--color-border) align-top"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
@@ -159,7 +172,7 @@ const TransactionsTable = ({ data = [] }) => {
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="text-center py-10 text-(--color-muted)"
+                  className="text-center py-12 text-(--color-muted)"
                 >
                   No transactions found.
                 </td>
@@ -169,23 +182,23 @@ const TransactionsTable = ({ data = [] }) => {
         </table>
       </div>
       <div className="mt-4 flex items-center justify-between gap-4 flex-wrap text-xs">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="px-2 py-1 rounded-md border border-(--color-border) disabled:opacity-40"
+            className="px-3 py-1.5 rounded-lg border border-(--color-border) disabled:opacity-30 hover:bg-(--color-surface-elevated) transition-colors text-[12px] font-medium"
           >
             Prev
           </button>
           <button
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="px-2 py-1 rounded-md border border-(--color-border) disabled:opacity-40"
+            className="px-3 py-1.5 rounded-lg border border-(--color-border) disabled:opacity-30 hover:bg-(--color-surface-elevated) transition-colors text-[12px] font-medium"
           >
             Next
           </button>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-(--color-muted)">
           <span>
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount()}

@@ -21,37 +21,40 @@ const RecentTransactions = ({
     return map;
   }, [categories]);
 
-  const handleViewAll = () => {
-    navigate("/transactions");
-  };
-
   return (
     <div
-      className={`glass rounded-sm border border-(--color-border) h-full flex flex-col overflow-hidden ${className}`}
+      className={`card rounded-xl h-full flex flex-col overflow-hidden ${className}`}
     >
       <div className="p-4 border-b border-(--color-border)">
-        <h3 className="text-lg font-semibold">Recent transactions</h3>
-        <p className="text-(--color-muted) text-xs">Latest activity</p>
+        <h3 className="text-base font-semibold tracking-tight">
+          Recent transactions
+        </h3>
+        <p className="text-(--color-muted) text-[11px] mt-0.5">
+          Latest activity
+        </p>
       </div>
-      <ul className="flex-1 overflow-auto divide-y divide-(--color-border)">
+      <ul className="flex-1 overflow-auto">
         {rows.map((tx, idx) => {
-          const color = categoryMap[tx.category] || "var(--color-fg)";
+          const color = categoryMap[tx.category] || "var(--color-muted)";
           return (
-            <li key={idx} className="flex items-center gap-3 px-4 py-3 text-sm">
+            <li
+              key={idx}
+              className="flex items-center gap-3 px-4 py-3 text-sm border-b border-(--color-border) last:border-b-0 transition-colors hover:bg-(--color-surface-elevated)"
+            >
               <span
-                className="h-2 w-2 rounded-full"
+                className="h-2 w-2 rounded-full flex-shrink-0"
                 style={{ background: color }}
                 aria-hidden
               />
               <div className="flex-1 min-w-0">
-                <p className="truncate font-medium">
+                <p className="truncate font-medium text-[13px]">
                   {tx.merchantName || tx.name}
                 </p>
                 <p className="text-[11px] text-(--color-muted)">
-                  {tx.category} • {moment(tx.date).format("MMM D")}
+                  {tx.category} &middot; {moment(tx.date).format("MMM D")}
                 </p>
               </div>
-              <div className="font-semibold tabular-nums">
+              <div className="font-semibold tabular-nums text-[13px]">
                 {new Intl.NumberFormat("en-US", {
                   style: "currency",
                   currency: "CAD",
@@ -63,10 +66,10 @@ const RecentTransactions = ({
       </ul>
       <div className="p-3 border-t border-(--color-border) text-center">
         <button
-          onClick={handleViewAll}
-          className="text-xs text-(--color-muted) hover:cursor-pointer hover:text-(--color-fg) transition"
+          onClick={() => navigate("/transactions")}
+          className="text-xs text-(--color-muted) hover:text-(--color-accent) hover:cursor-pointer transition-colors font-medium"
         >
-          View all
+          View all transactions &rarr;
         </button>
       </div>
     </div>

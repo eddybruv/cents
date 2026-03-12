@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import BaseLayout from "../layout/BaseLayout";
 import ActionBar from "../components/ActionBar";
 import ExpensesAnalysis from "../components/dashboard/ExpensesAnalysis";
@@ -22,9 +22,9 @@ const Dashboard = () => {
   return (
     <BaseLayout>
       <ActionBar page="dashboard" />
-      <div className="space-y-4">
+      <div className="space-y-5">
         <BudgetHeader />
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-5 gap-4 w-full pt-1">
+        <div className="animate-in stagger-3 flex-1 grid grid-cols-1 lg:grid-cols-5 gap-4 w-full">
           <ExpensesAnalysis
             className="lg:col-span-4 row-span-1"
             transactions={transactionsData}

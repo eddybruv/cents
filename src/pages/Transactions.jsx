@@ -1,8 +1,7 @@
 import React from "react";
 import TransactionsTable from "../components/transactions/TransactionsTable";
 import NewTransactionModal from "../components/transactions/NewTransactionModal";
-import BaseLayout from "../layout/BaseLayout"; // added
-import ActionBar from "../components/ActionBar"; // optional for consistency
+import BaseLayout from "../layout/BaseLayout";
 import { useTransactions } from "../hooks/useTransactions";
 import { useToast } from "../hooks/useToast";
 
@@ -17,28 +16,29 @@ const Transactions = () => {
 
   return (
     <BaseLayout>
-      <div className="p-0 md:p-0 space-y-6">
-        {/* layout already provides padding */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+      <div className="space-y-6">
+        <div className="animate-in flex flex-col sm:flex-row sm:items-end gap-4 justify-between">
           <div>
-            <h1 className="text-xl sm:text-2xl font-semibold">Transactions</h1>
-            <p className="text-xs sm:text-sm text-(--color-muted)">
+            <h1 className="text-2xl font-bold tracking-tight">Transactions</h1>
+            <p className="text-sm text-(--color-muted) mt-1">
               Manage and review all account activity
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <div className="flex gap-2">
             <button
               onClick={() => setShowModal(true)}
-              className="btn-primary w-full sm:w-auto"
+              className="btn-primary"
             >
               + Transaction
             </button>
-            <button className="btn-secondary w-full sm:w-auto">
+            <button className="btn-secondary">
               Upload Statement
             </button>
           </div>
         </div>
-        <TransactionsTable data={data} />
+        <div className="animate-in stagger-2">
+          <TransactionsTable data={data} />
+        </div>
         <NewTransactionModal
           open={showModal}
           onClose={() => setShowModal(false)}
