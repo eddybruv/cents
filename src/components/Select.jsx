@@ -39,7 +39,8 @@ const Select = ({
     }
   };
 
-  const handleSelect = (option) => {
+  const handleSelect = (e, option) => {
+    e.stopPropagation();
     setIsOpen(false);
     if (onChange) {
       onChange(option.value);
@@ -67,7 +68,7 @@ const Select = ({
         type="button"
         onClick={handleToggle}
         disabled={disabled}
-        className={`flex items-center justify-between w-full bg-(--color-surface) border border-(--color-border) rounded-md px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) transition-colors duration-200 ${
+        className={`flex items-center justify-between w-full bg-(--color-bg) border border-(--color-border-strong) rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-(--color-accent) transition-colors duration-200 ${
           disabled
             ? "opacity-50 cursor-not-allowed"
             : "hover:border-(--color-accent) cursor-pointer"
@@ -93,16 +94,16 @@ const Select = ({
 
       {/* Dropdown Menu */}
       {isOpen && !disabled && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-(--color-surface) border border-(--color-border) rounded-md shadow-lg z-50 overflow-hidden max-h-60 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-(--color-bg) border border-(--color-border-strong) rounded-lg shadow-lg z-50 overflow-hidden max-h-60 overflow-y-auto" style={{ boxShadow: 'var(--shadow-elevated)' }}>
           {normalizedOptions.map((option, index) => (
             <button
               type="button"
               key={index}
-              onClick={() => handleSelect(option)}
+              onClick={(e) => handleSelect(e, option)}
               className={`w-full text-left px-3 py-2 text-sm transition-colors duration-150 ${
                 option.value === value
-                  ? "bg-(--color-accent) text-(--color-bg)"
-                  : "hover:bg-(--color-border)"
+                  ? "bg-(--color-accent) text-(--color-bg) font-medium"
+                  : "hover:bg-(--color-surface-elevated)"
               }`}
             >
               {option.label}
