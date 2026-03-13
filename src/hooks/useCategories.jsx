@@ -2,22 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import API from "../api/API";
 
 export const useCategories = () => {
-  const fetchCategories = async () => {
-    try {
-      const response = await API.get("/api/categories/");
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      throw error;
-    }
-  };
-
-  const categories = useQuery({
+  return useQuery({
     queryKey: ["categories"],
-    queryFn: fetchCategories,
+    queryFn: async () => {
+      const { data } = await API.get("/api/categories/");
+      return data;
+    },
     staleTime: 5 * 60 * 1000,
     retry: 1,
   });
-
-  return categories;
 };
