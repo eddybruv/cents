@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCategories } from "../../hooks/useCategories";
-import API from "../../api/API";
+import API, { getErrorMessage } from "../../api/API";
 import Select from "../Select";
 
 const EditTransactionModal = ({ transaction, onClose }) => {
@@ -85,7 +85,7 @@ const EditTransactionModal = ({ transaction, onClose }) => {
 
         {mutation.isError && (
           <p className="text-xs text-red-400">
-            {mutation.error?.response?.data?.error || "Failed to save changes"}
+            {getErrorMessage(mutation.error, "Failed to save changes")}
           </p>
         )}
 

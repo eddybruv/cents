@@ -8,7 +8,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import AccountRow from "./AccountRow";
 import { formatCurrency } from "../../lib/formatCurrency";
-import API from "../../api/API";
+import API, { getErrorMessage } from "../../api/API";
 import { useQueryClient } from "@tanstack/react-query";
 
 const InstitutionCard = ({
@@ -33,7 +33,7 @@ const InstitutionCard = ({
       await queryClient.invalidateQueries({ queryKey: ["transactions"] });
       await queryClient.invalidateQueries({ queryKey: ["accounts"] });
     } catch (err) {
-      setSyncError(err?.response?.data?.error || "Sync failed");
+      setSyncError(getErrorMessage(err, "Sync failed"));
     } finally {
       setSyncing(false);
     }

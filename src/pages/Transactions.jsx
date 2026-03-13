@@ -1,18 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import TransactionsTable from "../components/transactions/TransactionsTable";
 import NewTransactionModal from "../components/transactions/NewTransactionModal";
 import BaseLayout from "../layout/BaseLayout";
 import { useTransactions } from "../hooks/useTransactions";
 import { useToast } from "../hooks/useToast";
+import { getErrorMessage } from "../api/API";
 
 const Transactions = () => {
   const { data, error } = useTransactions();
   const toast = useToast();
   const [showModal, setShowModal] = React.useState(false);
 
-  if (error) {
-    toast.error("Failed to load transactions.");
-  }
+  useEffect(() => {
+    if (error) {
+      toast.error(getErrorMessage(error, "Failed to load transactions"));
+    }
+  }, [error]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <BaseLayout>

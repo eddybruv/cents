@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import BaseLayout from "../layout/BaseLayout";
 import ActionBar from "../components/ActionBar";
 import ExpensesAnalysis from "../components/dashboard/ExpensesAnalysis";
@@ -8,6 +8,7 @@ import RecentTransactions from "../components/dashboard/RecentTransactions";
 import { useToast } from "../hooks/useToast";
 import { useTransactions } from "../hooks/useTransactions";
 import { useCategories } from "../hooks/useCategories";
+import { getErrorMessage } from "../api/API";
 
 const Dashboard = () => {
   const toast = useToast();
@@ -15,9 +16,14 @@ const Dashboard = () => {
     useTransactions();
   const { data: categoriesData, error: categoriesError } = useCategories();
 
-  if (transactionsError || categoriesError) {
-    toast.error("Failed to load dashboard data. Please try again later.");
-  }
+  useEffect(() => {
+    if (transactionsError) {
+      toast.error(getErrorMessage(transactionsError, "Failed to load transactions"));
+    }
+    if (categoriesError) {
+      toast.error(getErrorMessage(categoriesError, "Failed to load categories"));
+    }
+  }, [transactionsError, categoriesError]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <BaseLayout>
