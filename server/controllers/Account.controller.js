@@ -2,13 +2,11 @@ import { eq } from "drizzle-orm";
 import { db } from "../db/db.js";
 import { accounts } from "../db/schema/accounts.js";
 import { institutions } from "../db/schema/institutions.js";
+import { ApiError } from "../lib/ApiError.js";
 
-export const GetAccounts = async (req, res) => {
+export const GetAccounts = async (req, res, next) => {
   const userId = req.user?.id;
-
-  if (!userId) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  if (!userId) return next(ApiError.unauthorized());
 
   try {
     const userAccounts = await db
@@ -27,9 +25,9 @@ export const GetAccounts = async (req, res) => {
       .from(accounts)
       .innerJoin(institutions, eq(accounts.institutionId, institutions.id))
       .where(eq(institutions.userId, userId));
+
     res.json(userAccounts);
   } catch (error) {
-    console.error("❌ GetAccounts:", error);
-    res.status(500).json({ error: "Failed to retrieve accounts" });
+    next(error);
   }
 };

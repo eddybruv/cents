@@ -3,17 +3,13 @@ import { institutions } from "../db/schema/institutions.js";
 import { accounts } from "../db/schema/accounts.js";
 import plaidClient from "../services/plaidConfig.js";
 import { eq } from "drizzle-orm";
+import { ApiError } from "../lib/ApiError.js";
 
-// Simple controller to return investment-style accounts for the authenticated user
-export const GetInvestments = async (req, res) => {
+export const GetInvestments = async (req, res, next) => {
   const userId = req.user?.id;
-
-  if (!userId) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  if (!userId) return next(ApiError.unauthorized());
 
   try {
-    // Query accounts joined to institutions, filter by user and account type containing 'investment'
     const rows = await db
       .select({
         id: accounts.id,
@@ -28,22 +24,20 @@ export const GetInvestments = async (req, res) => {
         institutionName: institutions.name,
       })
       .from(accounts)
-      .innerJoin(institutions, institutions.id.eq(accounts.institutionId))
-      .where(institutions.userId.eq(userId))
-      .where(accounts.type.eq("investment"));
+      .innerJoin(institutions, eq(institutions.id, accounts.institutionId))
+      .where(eq(institutions.userId, userId))
+      .where(eq(accounts.type, "investment"));
 
     res.json(rows);
   } catch (error) {
-    console.error("❌ GetInvestments:", error);
-    res.status(500).json({ error: "Failed to retrieve investments" });
+    next(error);
   }
 };
 
 export default { GetInvestments };
 
-export const SyncPlaidInvestments = async (req, res) => {
+export const SyncPlaidInvestments = async (req, res, next) => {
   const { institutionId } = req.params;
-  console.log("SyncPlaidInvestments called for institutionId:", institutionId);
 
   try {
     const institution = await db
@@ -52,23 +46,15 @@ export const SyncPlaidInvestments = async (req, res) => {
       .where(eq(institutions.id, institutionId));
 
     if (institution.length === 0) {
-      return res.status(404).json({ error: "Institution not found" });
+      throw ApiError.notFound("Institution not found");
     }
 
-    const accessToken = institution[0].accessToken;
-
-    // Call Plaid investments holdings endpoint
     const { data } = await plaidClient.investmentsHoldingsGet({
-      access_token: accessToken,
+      access_token: institution[0].accessToken,
     });
 
-    // For now, return the raw holdings payload. Later we can persist holdings/securities.
-    return res.json({ holdings: data });
+    res.json({ holdings: data });
   } catch (error) {
-    console.error(
-      "❌ SyncPlaidInvestments:",
-      error?.response?.data || error.message || error,
-    );
-    return res.status(500).json({ error: "Failed to sync investments" });
+    next(error);
   }
 };

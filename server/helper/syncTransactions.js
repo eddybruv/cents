@@ -17,7 +17,6 @@ export const SyncTransactions = async (accessToken, institutionId) => {
       .where(eq(institutions.id, institutionId));
 
     let cursor = dbResponse[0]?.cursor || null;
-
     let hasMore = true;
 
     while (hasMore) {
@@ -29,9 +28,7 @@ export const SyncTransactions = async (accessToken, institutionId) => {
       added = added.concat(data.added);
       modified = modified.concat(data.modified);
       removed = removed.concat(data.removed);
-
       hasMore = data.has_more;
-
       cursor = data.next_cursor;
     }
 
@@ -40,27 +37,13 @@ export const SyncTransactions = async (accessToken, institutionId) => {
       .set({ transactionCursor: cursor })
       .where(eq(institutions.id, institutionId));
 
-    await Promise.all(
-      added.map(async (tx) => {
-        await UpsertTransaction(tx);
-      }),
-    );
+    await Promise.all(added.map((tx) => UpsertTransaction(tx)));
+    await Promise.all(modified.map((tx) => UpsertTransaction(tx)));
+    await Promise.all(removed.map((id) => deleteTransaction(id)));
 
-    // update modified
-    await Promise.all(
-      modified.map(async (tx) => {
-        await UpsertTransaction(tx);
-      }),
+    console.log(
+      `[OK] SyncTransactions: +${added.length} ~${modified.length} -${removed.length}`,
     );
-
-    // delete removed
-    await Promise.all(
-      removed.map(async (plaidTransactionId) => {
-        await deleteTransaction(plaidTransactionId);
-      }),
-    );
-
-    console.log("✅ SyncTransactions completed");
     return {
       synced: true,
       added: added.length,
@@ -69,10 +52,10 @@ export const SyncTransactions = async (accessToken, institutionId) => {
     };
   } catch (error) {
     console.error(
-      "❌ SyncTransactions:",
-      error?.response?.data || error.message,
+      `[ERR] SyncTransactions: ${error?.response?.data?.error_message || error.message}`,
     );
 
+    // Reset cursor so next sync starts fresh
     await db
       .update(institutions)
       .set({ transactionCursor: null })

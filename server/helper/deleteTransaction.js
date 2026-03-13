@@ -8,6 +8,8 @@ export const deleteTransaction = async (plaidTransactionId) => {
       .delete(transactions)
       .where(eq(transactions.plaidTransactionId, plaidTransactionId));
   } catch (error) {
-    console.error("Error deleting transaction:", error);
+    console.error(
+      `[ERR] deleteTransaction (${plaidTransactionId}): ${error.message}`,
+    );
   }
 };

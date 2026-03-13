@@ -4,15 +4,15 @@ import { db } from "../db/db.js";
 import { institutions } from "../db/schema/institutions.js";
 import { accounts } from "../db/schema/accounts.js";
 import plaidClient from "../services/plaidConfig.js";
-import { UpsertTransaction } from "../helper/upsertTransaction.js";
 import { SyncTransactions } from "../helper/syncTransactions.js";
+import { ApiError } from "../lib/ApiError.js";
 
 const COUNTRY_CODES = process.env.VITE_PLAID_COUNTRY_CODES.split(",");
 
-export const CreateLinkToken = async (req, res) => {
+export const CreateLinkToken = async (req, res, next) => {
   const { userId } = req.body;
   if (!userId || typeof userId !== "string" || !userId.trim()) {
-    return res.status(400).json({ error: "Invalid or missing userId" });
+    return next(ApiError.badRequest("Invalid or missing userId"));
   }
   try {
     const config = {
@@ -28,17 +28,15 @@ export const CreateLinkToken = async (req, res) => {
     });
     res.json(data);
   } catch (error) {
-    const status = error?.response?.status || 500;
-    const message = error?.response?.data || { error: "Plaid error" };
-    console.error("❌ CreateLinkToken:", message);
-    res.status(status).json(message);
+    next(error);
   }
 };
 
-export const ExchangePublicToken = async (req, res) => {
+export const ExchangePublicToken = async (req, res, next) => {
   const { public_token: publicToken, user_id: userId } = req.body;
-  if (!publicToken || typeof publicToken !== "string")
-    return res.status(400).json({ error: "Invalid or missing public_token" });
+  if (!publicToken || typeof publicToken !== "string") {
+    return next(ApiError.badRequest("Invalid or missing public_token"));
+  }
 
   try {
     const { data } = await plaidClient.itemPublicTokenExchange({
@@ -47,8 +45,9 @@ export const ExchangePublicToken = async (req, res) => {
     const accessToken = data.access_token;
 
     const institutionOk = await SyncInstitutions(accessToken, userId);
-    if (!institutionOk)
-      return res.status(500).json({ error: "Failed to sync institution data" });
+    if (!institutionOk) {
+      throw ApiError.internal("Failed to sync institution data from Plaid");
+    }
 
     const userInstitutions = await db
       .select()
@@ -65,22 +64,16 @@ export const ExchangePublicToken = async (req, res) => {
 
     res.json(data);
   } catch (error) {
-    const status = error?.response?.status || 500;
-    const message = error?.response?.data || { error: "Plaid error" };
-    console.error("❌ ExchangePublicToken:", message);
-    res.status(status).json(message);
+    next(error);
   }
 };
 
-export const SyncInstitutionTransactions = async (req, res) => {
+export const SyncInstitutionTransactions = async (req, res, next) => {
   const { institutionId } = req.body;
-  if (
-    !institutionId ||
-    typeof institutionId !== "string" ||
-    !institutionId.trim()
-  ) {
-    return res.status(400).json({ error: "Invalid or missing institutionId" });
+  if (!institutionId || typeof institutionId !== "string" || !institutionId.trim()) {
+    return next(ApiError.badRequest("Invalid or missing institutionId"));
   }
+
   try {
     const rows = await db
       .select({ accessToken: institutions.accessToken })
@@ -88,16 +81,21 @@ export const SyncInstitutionTransactions = async (req, res) => {
       .where(eq(institutions.id, institutionId));
 
     if (!rows.length) {
-      return res.status(404).json({ error: "Institution not found" });
+      throw ApiError.notFound("Institution not found");
     }
 
-    await SyncTransactions(rows[0].accessToken, institutionId);
-    res.json({ success: true });
+    const { synced, added, modified, removed } = await SyncTransactions(
+      rows[0].accessToken,
+      institutionId,
+    );
+
+    if (!synced) {
+      throw ApiError.internal("Transaction sync failed");
+    }
+
+    res.json({ message: "Transactions synced", added, modified, removed });
   } catch (error) {
-    const status = error?.response?.status || 500;
-    const message = error?.response?.data || { error: "Sync error" };
-    console.error("❌ SyncInstitutionTransactions:", message);
-    res.status(status).json(message);
+    next(error);
   }
 };
 
@@ -113,9 +111,7 @@ const SyncInstitutions = async (accessToken, userId) => {
     } = await plaidClient.institutionsGetById({
       institution_id: item.institution_id,
       country_codes: COUNTRY_CODES,
-      options: {
-        include_optional_metadata: true,
-      },
+      options: { include_optional_metadata: true },
     });
 
     await db
@@ -136,8 +132,7 @@ const SyncInstitutions = async (accessToken, userId) => {
     return true;
   } catch (error) {
     console.error(
-      "❌ SyncInstitutions:",
-      error?.response?.data || error.message,
+      `[ERR] SyncInstitutions: ${error?.response?.data?.error_message || error.message}`,
     );
     return false;
   }
@@ -148,12 +143,12 @@ const SyncAccounts = async (accessToken, institutionId) => {
     const { data } = await plaidClient.accountsGet({
       access_token: accessToken,
     });
-    const plaidAccounts = data.accounts;
 
     await Promise.all(
-      plaidAccounts.map(async (acc) => {
+      data.accounts.map(async (acc) => {
         const {
           account_id: plaidAccountId,
+          persistent_account_id: persistentAccountId,
           name,
           type,
           subtype,
@@ -165,32 +160,31 @@ const SyncAccounts = async (accessToken, institutionId) => {
           },
         } = acc;
 
-        const typeMaskUnique = `${type}-${mask}`;
-
         await db
           .insert(accounts)
           .values({
             plaidAccountId,
+            persistentAccountId: persistentAccountId || plaidAccountId,
             name,
             type,
             subtype,
             mask,
-            typeMaskUnique,
+            typeMaskUnique: `${type}-${mask}`,
             balanceAvailable,
             balanceCurrent,
             currencyCode,
             institutionId,
           })
           .onConflictDoUpdate({
-            target: [accounts.typeMaskUnique],
+            target: [accounts.persistentAccountId],
             set: {
+              plaidAccountId,
               name,
               subtype,
               balanceAvailable,
               balanceCurrent,
               currencyCode,
               institutionId,
-              plaidAccountId,
             },
           });
       }),
@@ -198,7 +192,9 @@ const SyncAccounts = async (accessToken, institutionId) => {
 
     return true;
   } catch (error) {
-    console.error("❌ SyncAccounts:", error?.response?.data || error.message);
+    console.error(
+      `[ERR] SyncAccounts: ${error?.response?.data?.error_message || error.message}`,
+    );
     return false;
   }
 };

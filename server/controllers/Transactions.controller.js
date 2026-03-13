@@ -5,8 +5,9 @@ import { institutions } from "../db/schema/institutions.js";
 import { accounts } from "../db/schema/accounts.js";
 import { categories } from "../db/schema/categories.js";
 import { SyncTransactions } from "../helper/syncTransactions.js";
+import { ApiError } from "../lib/ApiError.js";
 
-export const SyncPlaidTransactions = async (req, res) => {
+export const SyncPlaidTransactions = async (req, res, next) => {
   const { institutionId } = req.params;
 
   try {
@@ -14,37 +15,29 @@ export const SyncPlaidTransactions = async (req, res) => {
       .select({ accessToken: institutions.accessToken })
       .from(institutions)
       .where(eq(institutions.id, institutionId));
+
     if (institution.length === 0) {
-      return res.status(404).json({ error: "Institution not found" });
+      throw ApiError.notFound("Institution not found");
     }
 
-    const accessToken = institution[0].accessToken;
     const { synced, added, modified, removed } = await SyncTransactions(
-      accessToken,
+      institution[0].accessToken,
       institutionId,
     );
 
     if (!synced) {
-      return res.status(500).json({ error: "Failed to sync transactions" });
+      throw ApiError.internal("Transaction sync failed — cursor has been reset");
     }
-    res.json({
-      message: "Transactions synced successfully",
-      added,
-      modified,
-      removed,
-    });
+
+    res.json({ message: "Transactions synced successfully", added, modified, removed });
   } catch (error) {
-    console.error("❌ SyncPlaidTransactions:", error);
-    res.status(500).json({ error: "Failed to sync transactions" });
+    next(error);
   }
 };
 
-export const GetTransactions = async (req, res) => {
+export const GetTransactions = async (req, res, next) => {
   const userId = req.user?.id;
-
-  if (!userId) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  if (!userId) return next(ApiError.unauthorized());
 
   try {
     const allTransactions = await db
@@ -64,7 +57,7 @@ export const GetTransactions = async (req, res) => {
         accountName: accounts.name,
       })
       .from(transactions)
-      .innerJoin(accounts, eq(accounts.plaidAccountId, transactions.accountId))
+      .innerJoin(accounts, eq(accounts.id, transactions.accountId))
       .innerJoin(institutions, eq(institutions.id, accounts.institutionId))
       .innerJoin(categories, eq(categories.id, transactions.categoryId))
       .where(eq(institutions.userId, userId))
@@ -72,32 +65,27 @@ export const GetTransactions = async (req, res) => {
 
     res.json(allTransactions);
   } catch (error) {
-    console.error("❌ GetTransactions:", error);
-    res.status(500).json({ error: "Failed to retrieve transactions" });
+    next(error);
   }
 };
 
-export const UpdateTransaction = async (req, res) => {
+export const UpdateTransaction = async (req, res, next) => {
   const { id } = req.params;
   const { userDescription, categoryId } = req.body;
   const userId = req.user?.id;
-
-  if (!userId) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  if (!userId) return next(ApiError.unauthorized());
 
   try {
-    // Verify the transaction belongs to the user
     const existing = await db
       .select({ id: transactions.id })
       .from(transactions)
-      .innerJoin(accounts, eq(accounts.plaidAccountId, transactions.accountId))
+      .innerJoin(accounts, eq(accounts.id, transactions.accountId))
       .innerJoin(institutions, eq(institutions.id, accounts.institutionId))
       .where(eq(transactions.id, id))
       .where(eq(institutions.userId, userId));
 
     if (!existing.length) {
-      return res.status(404).json({ error: "Transaction not found" });
+      throw ApiError.notFound("Transaction not found");
     }
 
     const patch = {};
@@ -112,19 +100,15 @@ export const UpdateTransaction = async (req, res) => {
 
     res.json(updated);
   } catch (error) {
-    console.error("❌ UpdateTransaction:", error);
-    res.status(500).json({ error: "Failed to update transaction" });
+    next(error);
   }
 };
 
-export const GetFilteredTransactions = async (req, res) => {
+export const GetFilteredTransactions = async (req, res, next) => {
   const { startDate, endDate, categoryId, accountId } = req.query;
   const userId = req.user?.id;
+  if (!userId) return next(ApiError.unauthorized());
 
-  if (!userId) {
-    console.error("❌ GetFilteredTransactions: Unauthorized access attempt");
-    return res.status(401).json({ error: "Unauthorized" });
-  }
   try {
     let query = db
       .select({
@@ -141,29 +125,20 @@ export const GetFilteredTransactions = async (req, res) => {
         accountName: accounts.name,
       })
       .from(transactions)
-      .innerJoin(accounts, eq(accounts.plaidAccountId, transactions.accountId))
+      .innerJoin(accounts, eq(accounts.id, transactions.accountId))
       .innerJoin(institutions, eq(institutions.id, accounts.institutionId))
       .innerJoin(categories, eq(categories.id, transactions.categoryId))
       .where(eq(institutions.userId, userId))
       .orderBy(desc(transactions.date));
 
-    if (startDate) {
-      query = query.where(gte(transactions.date, startDate));
-    }
-    if (endDate) {
-      query = query.where(lte(transactions.date, endDate));
-    }
-    if (categoryId) {
-      query = query.where(eq(transactions.categoryId, categoryId));
-    }
-    if (accountId) {
-      query = query.where(eq(transactions.accountId, accountId));
-    }
+    if (startDate) query = query.where(gte(transactions.date, startDate));
+    if (endDate) query = query.where(lte(transactions.date, endDate));
+    if (categoryId) query = query.where(eq(transactions.categoryId, categoryId));
+    if (accountId) query = query.where(eq(transactions.accountId, accountId));
 
     const filteredTransactions = await query;
     res.json(filteredTransactions);
   } catch (error) {
-    console.error("❌ GetFilteredTransactions:", error);
-    res.status(500).json({ error: "Failed to retrieve transactions" });
+    next(error);
   }
 };
