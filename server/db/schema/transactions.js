@@ -13,7 +13,7 @@ import { categories } from "./categories.js";
 
 export const transactions = pgTable("transactions", {
   id: uuid("id").primaryKey().defaultRandom(),
-  accountId: text("account_id").references(() => accounts.id, {
+  accountId: uuid("account_id").references(() => accounts.id, {
     onDelete: "cascade",
   }),
   plaidTransactionId: text("plaid_transaction_id").unique().notNull(),

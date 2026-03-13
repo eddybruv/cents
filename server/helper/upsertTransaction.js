@@ -1,11 +1,12 @@
+import { eq } from "drizzle-orm";
 import { db } from "../db/db.js";
 import { transactions } from "../db/schema/transactions.js";
+import { accounts } from "../db/schema/accounts.js";
 import { categorizeTransaction } from "./mapCategory.js";
 
 export const UpsertTransaction = async (tx) => {
-  // Find category or insert if new
-  let {
-    account_id: accountId,
+  const {
+    account_id: plaidAccountId,
     transaction_id: plaidTransactionId,
     name,
     amount,
@@ -16,13 +17,26 @@ export const UpsertTransaction = async (tx) => {
     merchant_name: merchantName,
   } = tx;
 
+  // Resolve plaid account ID → internal UUID
+  const [account] = await db
+    .select({ id: accounts.id })
+    .from(accounts)
+    .where(eq(accounts.plaidAccountId, plaidAccountId))
+    .limit(1);
+
+  if (!account) {
+    console.error(
+      `[ERR] UpsertTransaction: No account found for plaid ID ${plaidAccountId}`,
+    );
+    return;
+  }
+
   const { id: categoryId } = categorizeTransaction(tx);
 
-  // Upsert transaction
   await db
     .insert(transactions)
     .values({
-      accountId,
+      accountId: account.id,
       plaidTransactionId,
       name,
       amount,
@@ -35,6 +49,7 @@ export const UpsertTransaction = async (tx) => {
     .onConflictDoUpdate({
       target: transactions.plaidTransactionId,
       set: {
+        accountId: account.id,
         amount,
         pending,
         categoryId,
