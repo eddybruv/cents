@@ -17,12 +17,12 @@ const AddBudgetModal = ({ onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 modal-overlay"
         onClick={onClose}
       />
       <form
         onSubmit={submit}
-        className="relative z-10 w-full max-w-sm glass border border-(--color-border) rounded-lg p-5 space-y-4"
+        className="relative z-10 w-full max-w-sm modal-panel p-5 space-y-4"
       >
         <h2 className="text-sm font-semibold">New Budget</h2>
         <label className="text-[11px] space-y-1 w-full block">

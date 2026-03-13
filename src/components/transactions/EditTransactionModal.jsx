@@ -43,12 +43,12 @@ const EditTransactionModal = ({ transaction, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 modal-overlay"
         onClick={onClose}
       />
       <form
         onSubmit={handleSubmit}
-        className="relative z-10 w-full max-w-md glass border border-(--color-border) rounded-lg p-4 sm:p-6 space-y-4"
+        className="relative z-10 w-full max-w-md modal-panel p-4 sm:p-6 space-y-4"
       >
         <div>
           <h2 className="text-base sm:text-lg font-semibold">

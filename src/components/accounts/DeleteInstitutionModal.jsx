@@ -6,10 +6,10 @@ const DeleteInstitutionModal = ({ institution, onConfirm, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 modal-overlay"
         onClick={onClose}
       />
-      <div className="relative z-10 w-full max-w-md glass border border-red-500/30 rounded-lg p-4 sm:p-6 space-y-4">
+      <div className="relative z-10 w-full max-w-md modal-panel-danger p-4 sm:p-6 space-y-4">
         <div className="flex items-start gap-3">
           <div className="p-2 rounded-lg bg-red-500/10">
             <FontAwesomeIcon
